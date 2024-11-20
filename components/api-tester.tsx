@@ -51,6 +51,24 @@ export function ApiTester({ className }: ApiTesterProps) {
   const methodsWithBody = ["POST", "PUT", "PATCH"]
   const showBodyTab = methodsWithBody.includes(method)
 
+  React.useEffect(() => {
+    // Check for transferred request from AI mode
+    const transferredRequest = localStorage.getItem('transferredRequest')
+    if (transferredRequest) {
+      try {
+        const request = JSON.parse(transferredRequest)
+        setMethod(request.method)
+        setUrl(request.url)
+        setHeaders(Object.entries(request.headers).map(([key, value]) => ({ key, value: value as string })))
+        setBody(JSON.stringify(request.body, null, 2))
+        // Clear the transferred request
+        localStorage.removeItem('transferredRequest')
+      } catch (error) {
+        console.error('Error loading transferred request:', error)
+      }
+    }
+  }, [])
+
   const handleSend = async () => {
     if (!url) {
       toast.error("Please enter a URL")

@@ -3,12 +3,12 @@
 import { useAI } from '@/lib/ai-context'
 import { Card } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
-import { Check, Copy } from 'lucide-react'
+import { Check, Copy, ExternalLink } from 'lucide-react'
 import { useState } from 'react'
 import { Badge } from '@/components/ui/badge'
 
 export function AISuggestionResult() {
-  const { suggestions, requestDetails, isProcessing } = useAI()
+  const { suggestions, requestDetails, isProcessing, transferToClassic } = useAI()
   const [copied, setCopied] = useState(false)
 
   if (!suggestions.length || isProcessing) return null
@@ -19,17 +19,27 @@ export function AISuggestionResult() {
     setTimeout(() => setCopied(false), 2000)
   }
 
+  const handleTransfer = () => {
+    transferToClassic(requestDetails)
+  }
+
   return (
     <Card className="p-4 mt-4">
       <div className="flex items-center justify-between mb-4">
         <h3 className="text-lg font-semibold">AI Suggestion</h3>
-        <Button variant="outline" size="sm" onClick={handleCopy}>
-          {copied ? (
-            <Check className="h-4 w-4 text-green-500" />
-          ) : (
-            <Copy className="h-4 w-4" />
-          )}
-        </Button>
+        <div className="flex gap-2">
+          <Button variant="outline" size="sm" onClick={handleCopy}>
+            {copied ? (
+              <Check className="h-4 w-4 text-green-500" />
+            ) : (
+              <Copy className="h-4 w-4" />
+            )}
+          </Button>
+          <Button variant="default" size="sm" onClick={handleTransfer}>
+            <ExternalLink className="h-4 w-4 mr-2" />
+            Test in Classic Mode
+          </Button>
+        </div>
       </div>
 
       <div className="space-y-4">

@@ -5,12 +5,14 @@ import { AIContext } from '@/lib/ai-context'
 import { processQuery } from '@/lib/ai-service'
 import { toast } from 'sonner'
 import type { RequestDetails } from '@/lib/ai-context'
+import { useRouter } from 'next/navigation'
 
 interface AIProviderProps {
   children: React.ReactNode
 }
 
 export function AIProvider({ children }: AIProviderProps) {
+  const router = useRouter()
   const [isProcessing, setIsProcessing] = useState(false)
   const [lastQuery, setLastQuery] = useState<string | null>(null)
   const [suggestions, setSuggestions] = useState<string[]>([])
@@ -33,8 +35,7 @@ export function AIProvider({ children }: AIProviderProps) {
         context: result.context
       })
 
-      // Add to history
-      setRequestHistory(prev => [...prev, result])
+      setRequestHistory(prev => [...prev, requestDetails])
 
       toast.success('Successfully processed query')
     } catch (err) {
@@ -44,6 +45,23 @@ export function AIProvider({ children }: AIProviderProps) {
     } finally {
       setIsProcessing(false)
     }
+  }
+
+  const transferToClassic = (details: RequestDetails) => {
+    // Save request details to localStorage for classic mode to pick up
+    localStorage.setItem('transferredRequest', JSON.stringify({
+      method: details.method,
+      url: details.endpoint,
+      headers: details.parameters?.headers || {},
+      body: details.parameters?.body || {}
+    }))
+    
+    // Trigger storage event manually since we're in the same window
+    window.dispatchEvent(new Event('storage'))
+    
+    // Switch to classic tab via URL
+    router.push('/?tab=classic')
+    toast.success('Request transferred to Classic mode')
   }
 
   return (
@@ -60,7 +78,8 @@ export function AIProvider({ children }: AIProviderProps) {
         processNaturalLanguage,
         generateDocumentation: async () => {},
         analyzeError: async () => {},
-        optimizePerformance: async () => {}
+        optimizePerformance: async () => {},
+        transferToClassic
       }}
     >
       {children}
