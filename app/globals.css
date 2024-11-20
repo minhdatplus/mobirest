@@ -2,10 +2,6 @@
 @tailwind components;
 @tailwind utilities;
 
-body {
-  font-family: Arial, Helvetica, sans-serif;
-}
-
 @layer base {
   :root {
     --background: 0 0% 100%;
@@ -29,6 +25,61 @@ body {
     --ring: var(--primary);
     --radius: 0.5rem;
   }
+
+  /* 2024 - Peach Fuzz */
+  .theme-2024 {
+    --primary: 11 73% 77%;
+    --primary-foreground: 222 47% 11%;
+    --secondary: 24 54% 87%;
+    --secondary-foreground: 222 47% 11%;
+    --accent: 11 40% 60%;
+    --accent-foreground: 0 0% 100%;
+    --ring: hsl(11 73% 77%);
+    --border: 11 73% 77%;
+  }
+
+  /* 2023 - Viva Magenta */
+  .theme-2023 {
+    --primary: 337 75% 47%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 337 75% 37%;
+    --secondary-foreground: 0 0% 100%;
+    --accent: 337 75% 57%;
+    --accent-foreground: 0 0% 100%;
+    --ring: hsl(337 75% 47%);
+    --border: 337 75% 47%;
+  }
+
+  /* 2022 - Very Peri */
+  .theme-2022 {
+    --primary: 248 53% 58%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 248 53% 48%;
+    --secondary-foreground: 0 0% 100%;
+    --accent: 248 53% 68%;
+    --accent-foreground: 222 47% 11%;
+  }
+
+  /* 2021 - Ultimate Gray & Illuminating */
+  .theme-2021 {
+    --primary: 83 44% 51%;
+    --primary-foreground: 222 47% 11%;
+    --secondary: 84 0% 88%;
+    --secondary-foreground: 222 47% 11%;
+    --accent: 83 44% 41%;
+    --accent-foreground: 0 0% 100%;
+  }
+
+  /* 2020 - Classic Blue */
+  .theme-2020 {
+    --primary: 213 62% 45%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 213 62% 35%;
+    --secondary-foreground: 0 0% 100%;
+    --accent: 213 62% 55%;
+    --accent-foreground: 0 0% 100%;
+  }
+
   .dark {
     --background: 222.2 84% 4.9%;
     --foreground: 210 40% 98%;
@@ -58,5 +109,15 @@ body {
   }
   body {
     @apply bg-background text-foreground;
+  }
+}
+
+@layer components {
+  .btn-outline {
+    @apply border border-primary text-primary hover:bg-primary hover:text-primary-foreground;
+  }
+  
+  .btn-ghost {
+    @apply hover:bg-accent hover:text-accent-foreground border-transparent;
   }
 }
