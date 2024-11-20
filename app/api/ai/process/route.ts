@@ -1,34 +1,28 @@
-import { OpenAI } from 'openai'
 import { NextResponse } from 'next/server'
+import { AIProviderFactory } from '@/lib/ai-providers/provider-factory'
 
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY
-})
+// Initialize providers
+AIProviderFactory.initialize()
 
 export async function POST(req: Request) {
   try {
-    const { query } = await req.json()
+    const { query, context, provider: providerName } = await req.json()
 
-    const completion = await openai.chat.completions.create({
-      messages: [
-        {
-          role: 'system',
-          content: 'You are an API assistant. Convert natural language to REST API requests. Return response in JSON format with method, url, headers, and body if applicable.'
-        },
-        {
-          role: 'user',
-          content: query
-        }
-      ],
-      model: 'gpt-4-turbo-preview',
-      response_format: { type: "json_object" }
-    })
+    // Get specified provider or default
+    const provider = providerName ? 
+      AIProviderFactory.getProvider(providerName) :
+      AIProviderFactory.getDefaultProvider()
 
-    const response = completion.choices[0].message.content
+    if (!provider) {
+      throw new Error('No AI provider available')
+    }
+
+    const result = await provider.process({ query, context })
 
     return NextResponse.json({ 
       success: true,
-      data: JSON.parse(response || '{}')
+      data: result,
+      provider: provider.name
     })
     
   } catch (error) {

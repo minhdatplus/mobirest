@@ -1,17 +1,20 @@
+import { AIRequestContext } from './ai-providers/types'
+
 interface QueryResult {
   suggestions: string[]
   method?: string
   endpoint?: string
   parameters?: Record<string, any>
+  context?: AIRequestContext
 }
 
-export async function processQuery(query: string): Promise<QueryResult> {
+export async function processQuery(query: string, provider?: string): Promise<QueryResult> {
   const response = await fetch('/api/ai/process', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
     },
-    body: JSON.stringify({ query })
+    body: JSON.stringify({ query, provider })
   })
 
   if (!response.ok) {
@@ -24,7 +27,7 @@ export async function processQuery(query: string): Promise<QueryResult> {
     throw new Error(result.error)
   }
 
-  const { method, url, headers, body } = result.data
+  const { method, url, headers, body, context } = result.data
 
   return {
     suggestions: [`${method} ${url}`],
@@ -33,6 +36,7 @@ export async function processQuery(query: string): Promise<QueryResult> {
     parameters: {
       headers,
       body
-    }
+    },
+    context
   }
 } 
