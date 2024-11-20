@@ -4,7 +4,8 @@ import { useState } from 'react'
 import { useAI } from '@/lib/ai-context'
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
-import { Loader2 } from 'lucide-react'
+import { Loader2, Wand2 } from 'lucide-react'
+import { Card } from '@/components/ui/card'
 
 export function NaturalLanguageInput() {
   const [query, setQuery] = useState('')
@@ -17,23 +18,34 @@ export function NaturalLanguageInput() {
   }
 
   return (
-    <form onSubmit={handleSubmit} className="flex gap-2">
-      <Input
-        placeholder="Describe your API request..."
-        value={query}
-        onChange={(e) => setQuery(e.target.value)}
-        className="flex-1"
-      />
-      <Button type="submit" disabled={isProcessing}>
-        {isProcessing ? (
-          <>
-            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-            Processing
-          </>
-        ) : (
-          'Send'
-        )}
-      </Button>
-    </form>
+    <Card className="p-4">
+      <form onSubmit={handleSubmit} className="space-y-4">
+        <div className="flex items-center gap-2">
+          <Wand2 className="w-5 h-5 text-muted-foreground" />
+          <p className="text-sm text-muted-foreground">
+            Describe your API request in natural language
+          </p>
+        </div>
+        
+        <div className="flex gap-2">
+          <Input
+            placeholder="e.g. Get all users from api.example.com"
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            className="flex-1"
+          />
+          <Button type="submit" disabled={isProcessing}>
+            {isProcessing ? (
+              <>
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                Processing
+              </>
+            ) : (
+              'Generate'
+            )}
+          </Button>
+        </div>
+      </form>
+    </Card>
   )
 } 
