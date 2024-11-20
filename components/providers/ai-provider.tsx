@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { AIContext } from '@/lib/ai-context'
 import { processQuery } from '@/lib/ai-service'
 import { toast } from 'sonner'
@@ -20,6 +20,15 @@ export function AIProvider({ children }: AIProviderProps) {
   const [requestDetails, setRequestDetails] = useState<RequestDetails>({})
   const [requestHistory, setRequestHistory] = useState<RequestDetails[]>([])
   const [selectedProvider, setSelectedProvider] = useState<string>('openai')
+  const [lastTransferredRequest, setLastTransferredRequest] = useState<string | null>(null)
+
+  // Load last transferred request on mount
+  useEffect(() => {
+    const transferredRequest = localStorage.getItem('transferredRequest')
+    if (transferredRequest) {
+      setLastTransferredRequest(transferredRequest)
+    }
+  }, [])
 
   const processNaturalLanguage = async (query: string) => {
     try {
@@ -37,6 +46,9 @@ export function AIProvider({ children }: AIProviderProps) {
 
       setRequestHistory(prev => [...prev, requestDetails])
 
+      // Clear last transferred request when generating new one
+      setLastTransferredRequest(null)
+
       toast.success('Successfully processed query')
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Unknown error occurred'
@@ -48,13 +60,17 @@ export function AIProvider({ children }: AIProviderProps) {
   }
 
   const transferToClassic = (details: RequestDetails) => {
-    // Save request details to localStorage for classic mode to pick up
-    localStorage.setItem('transferredRequest', JSON.stringify({
+    const transferData = {
       method: details.method,
       url: details.endpoint,
       headers: details.parameters?.headers || {},
       body: details.parameters?.body || {}
-    }))
+    }
+    
+    // Save to localStorage and state
+    const transferString = JSON.stringify(transferData)
+    localStorage.setItem('transferredRequest', transferString)
+    setLastTransferredRequest(transferString)
     
     // Trigger storage event manually since we're in the same window
     window.dispatchEvent(new Event('storage'))
@@ -79,7 +95,8 @@ export function AIProvider({ children }: AIProviderProps) {
         generateDocumentation: async () => {},
         analyzeError: async () => {},
         optimizePerformance: async () => {},
-        transferToClassic
+        transferToClassic,
+        lastTransferredRequest
       }}
     >
       {children}

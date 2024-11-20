@@ -27,6 +27,7 @@ interface AIContextType {
   analyzeError: (error: any) => Promise<void>
   optimizePerformance: (metrics: any) => Promise<void>
   transferToClassic: (details: RequestDetails) => void
+  lastTransferredRequest: string | null
 }
 
 export const AIContext = createContext<AIContextType | undefined>(undefined)
