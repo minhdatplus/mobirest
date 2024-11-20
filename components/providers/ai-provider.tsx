@@ -80,6 +80,15 @@ export function AIProvider({ children }: AIProviderProps) {
     toast.success('Request transferred to Classic mode')
   }
 
+  const clearRequest = () => {
+    setSuggestions([])
+    setRequestDetails({})
+    setLastQuery(null)
+    setError(null)
+    setLastTransferredRequest(null)
+    toast.success('Request cleared')
+  }
+
   return (
     <AIContext.Provider 
       value={{
@@ -96,7 +105,8 @@ export function AIProvider({ children }: AIProviderProps) {
         analyzeError: async () => {},
         optimizePerformance: async () => {},
         transferToClassic,
-        lastTransferredRequest
+        lastTransferredRequest,
+        clearRequest,
       }}
     >
       {children}

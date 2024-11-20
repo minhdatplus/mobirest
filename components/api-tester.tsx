@@ -1,7 +1,7 @@
 "use client"
 
 import * as React from "react"
-import { Send, Save, Clock, Copy, Check, Code, Loader2 } from "lucide-react"
+import { Send, Save, Clock, Copy, Check, Code, Loader2, RotateCcw } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { cn } from "@/lib/utils"
@@ -157,27 +157,48 @@ export function ApiTester({ className }: ApiTesterProps) {
     return "bg-red-100 text-red-800"
   }
 
+  const handleReset = () => {
+    setMethod("GET")
+    setUrl("")
+    setHeaders([{ key: "Content-Type", value: "application/json" }])
+    setBody("")
+    setResponse(null)
+    setResponseTime(null)
+    toast.success("Request form cleared")
+  }
+
   return (
     <div className={cn("space-y-4 w-full max-w-full overflow-hidden", className)}>
       {/* Request Section */}
       <Card className="p-4 space-y-4">
-        <div className="flex flex-col sm:flex-row gap-2">
-          <Select value={method} onValueChange={(value: Method) => setMethod(value)}>
-            <SelectTrigger className="w-full sm:w-[100px]">
-              <SelectValue placeholder="Method" />
-            </SelectTrigger>
-            <SelectContent>
-              {methods.map(m => (
-                <SelectItem key={m} value={m}>{m}</SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-          <Input
-            value={url}
-            onChange={(e) => setUrl(e.target.value)}
-            placeholder="Enter request URL"
-            className="flex-1"
-          />
+        <div className="flex items-center justify-between">
+          <div className="flex flex-col sm:flex-row gap-2 flex-1">
+            <Select value={method} onValueChange={(value: Method) => setMethod(value)}>
+              <SelectTrigger className="w-full sm:w-[100px]">
+                <SelectValue placeholder="Method" />
+              </SelectTrigger>
+              <SelectContent>
+                {methods.map(m => (
+                  <SelectItem key={m} value={m}>{m}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            <Input
+              value={url}
+              onChange={(e) => setUrl(e.target.value)}
+              placeholder="Enter request URL"
+              className="flex-1"
+            />
+          </div>
+          <Button
+            variant="secondary"
+            size="sm"
+            onClick={handleReset}
+            className="ml-2 hover:bg-secondary/80"
+          >
+            <RotateCcw className="h-4 w-4 mr-2" />
+            Reset
+          </Button>
         </div>
 
         <div className="space-y-4">

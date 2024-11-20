@@ -3,13 +3,13 @@
 import { useAI } from '@/lib/ai-context'
 import { Card } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
-import { Check, Copy, ExternalLink, Code } from 'lucide-react'
+import { Check, Copy, ExternalLink, Code, RotateCcw } from 'lucide-react'
 import { useState } from 'react'
 import { Badge } from '@/components/ui/badge'
 import { Separator } from '@/components/ui/separator'
 
 export function AISuggestionResult() {
-  const { suggestions, requestDetails, isProcessing, transferToClassic } = useAI()
+  const { suggestions, requestDetails, isProcessing, transferToClassic, clearRequest } = useAI()
   const [copied, setCopied] = useState(false)
 
   if (!suggestions.length || isProcessing) return null
@@ -27,7 +27,18 @@ export function AISuggestionResult() {
   return (
     <Card className="p-4 mt-4">
       <div className="flex items-center justify-between mb-4">
-        <h3 className="text-lg font-semibold">AI Suggestion</h3>
+        <div className="flex items-center gap-2">
+          <h3 className="text-lg font-semibold">AI Suggestion</h3>
+          <Button 
+            variant="secondary"
+            size="sm" 
+            onClick={clearRequest}
+            className="h-8 hover:bg-secondary/80"
+          >
+            <RotateCcw className="h-4 w-4 mr-2" />
+            Clear
+          </Button>
+        </div>
         <div className="flex gap-2">
           <Button variant="outline" size="sm" onClick={handleCopy}>
             {copied ? (
