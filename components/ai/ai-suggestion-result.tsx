@@ -13,7 +13,11 @@ export function AISuggestionResult() {
   const [copied, setCopied] = useState(false)
   const [touchStart, setTouchStart] = useState(0)
 
-  if (!suggestions.length || isProcessing) return null
+  console.log('Suggestions:', suggestions)
+  console.log('IsProcessing:', isProcessing)
+  console.log('RequestDetails:', requestDetails)
+
+  if (!suggestions?.length || isProcessing) return null
 
   const handleCopy = () => {
     navigator.clipboard.writeText(JSON.stringify(requestDetails, null, 2))
@@ -29,26 +33,6 @@ export function AISuggestionResult() {
     if (Math.abs(event.changedTouches[0].clientX - touchStart) > 100) {
       clearRequest()
     }
-  }
-
-  const ProgressiveResponse = ({ data }) => {
-    const [visibleParts, setVisibleParts] = useState(1)
-    
-    useEffect(() => {
-      const timer = setInterval(() => {
-        setVisibleParts(prev => Math.min(prev + 1, 4))
-      }, 200)
-      return () => clearInterval(timer)
-    }, [])
-
-    return (
-      <div className="space-y-2 animate-in fade-in-50">
-        {visibleParts >= 1 && <Method data={data.method} />}
-        {visibleParts >= 2 && <URL data={data.url} />}
-        {visibleParts >= 3 && <Headers data={data.headers} />}
-        {visibleParts >= 4 && <Body data={data.body} />}
-      </div>
-    )
   }
 
   return (

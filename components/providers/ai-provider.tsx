@@ -82,8 +82,10 @@ export function AIProvider({ children }: AIProviderProps) {
             setIsProcessing(true)
             setLastQuery(query)
             
+            const result = await processQuery(query, selectedProvider)
+            
             await showToast.promise(
-              processQuery(query, selectedProvider),
+              Promise.resolve(result),
               {
                 loading: 'Processing your request...',
                 success: 'Successfully processed query',
@@ -91,20 +93,20 @@ export function AIProvider({ children }: AIProviderProps) {
               }
             )
             
-            setSuggestions(result.suggestions)
-            setRequestDetails({
-              method: result.method,
-              endpoint: result.endpoint,
-              parameters: {
-                headers: result.parameters?.headers,
-                body: result.parameters?.body
-              },
-              context: result.context
-            })
+            if (result) {
+              setSuggestions(result.suggestions)
+              setRequestDetails({
+                method: result.method,
+                endpoint: result.endpoint,
+                parameters: {
+                  headers: result.parameters?.headers,
+                  body: result.parameters?.body
+                },
+                context: result.context
+              })
 
-            setRequestHistory(prev => [...prev, requestDetails])
-            setLastTransferredRequest(null)
-            showToast.success('Successfully processed query')
+              setRequestHistory(prev => [...prev, requestDetails])
+            }
           } catch (err) {
             const errorMessage = err instanceof Error ? err.message : 'Unknown error occurred'
             setError(errorMessage)

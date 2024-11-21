@@ -54,12 +54,14 @@ export class GeminiProvider extends BaseAIProvider {
         },
       })
 
-      const response = result.response.text()
+      const response = await result.response.text()
       
       let parsedResponse: AIResponse
       try {
         parsedResponse = JSON.parse(response)
+        console.log('Parsed Response:', parsedResponse)
       } catch (e) {
+        console.error('Parse error:', e)
         // If response is not valid JSON, try to extract JSON from the text
         const jsonMatch = response.match(/\{[\s\S]*\}/)
         if (!jsonMatch) {

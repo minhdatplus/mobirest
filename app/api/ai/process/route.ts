@@ -21,8 +21,14 @@ export async function POST(req: Request) {
 
     return NextResponse.json({ 
       success: true,
-      data: result,
-      provider: provider.name
+      data: {
+        suggestions: result.suggestions,
+        method: result.method,
+        url: result.url,
+        headers: result.headers,
+        body: result.body,
+        context: result.context
+      }
     })
     
   } catch (error) {
