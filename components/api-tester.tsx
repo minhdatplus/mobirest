@@ -15,12 +15,14 @@ import { Separator } from "@/components/ui/separator"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { useAIProviderStore } from '@/lib/stores/ai-provider-store'
 import { AI_PROVIDERS } from '@/lib/constants/ai-providers'
+import { useSearchParams } from 'next/navigation'
+import { useClassicFormStore } from '@/lib/stores/classic-form-store'
+import { Method, Header } from '@/lib/stores/classic-form-store'
 
 interface ApiTesterProps {
   className?: string
 }
 
-type Method = "GET" | "POST" | "PUT" | "DELETE" | "PATCH"
 type ResponseData = {
   status: number
   statusText: string
@@ -32,12 +34,11 @@ type ResponseData = {
 interface CollectionSaveProps extends Omit<Collection, "id"> {}
 
 export function ApiTester({ className }: ApiTesterProps) {
-  const [method, setMethod] = React.useState<Method>("GET")
-  const [url, setUrl] = React.useState("")
-  const [headers, setHeaders] = React.useState([
-    { key: "Content-Type", value: "application/json" }
-  ])
-  const [body, setBody] = React.useState("")
+  const {
+    method, url, headers, body,
+    setMethod, setUrl, setHeaders, setBody, resetForm
+  } = useClassicFormStore()
+  
   const [response, setResponse] = React.useState<ResponseData | null>(null)
   const [responseTime, setResponseTime] = React.useState<number | null>(null)
   const [copied, setCopied] = React.useState(false)
@@ -48,10 +49,49 @@ export function ApiTester({ className }: ApiTesterProps) {
     maxHistoryItems: 50
   })
   const [isLoading, setIsLoading] = React.useState(false)
+  const searchParams = useSearchParams()
+  const currentTab = searchParams.get('tab')
 
   const methods: Method[] = ["GET", "POST", "PUT", "DELETE", "PATCH"]
   const methodsWithBody = ["POST", "PUT", "PATCH"]
   const showBodyTab = methodsWithBody.includes(method)
+
+  // Load transferred request when tab changes to classic
+  React.useEffect(() => {
+    if (currentTab === 'classic') {
+      const loadTransferredRequest = () => {
+        const transferredRequest = localStorage.getItem('transferredRequest')
+        if (transferredRequest) {
+          try {
+            const request = JSON.parse(transferredRequest)
+            setMethod(request.method as Method)
+            setUrl(request.url)
+            
+            // Convert headers object to array format
+            const headerArray = Object.entries(request.headers).map(([key, value]) => ({
+              key,
+              value: value as string
+            }))
+            setHeaders(headerArray.length > 0 ? headerArray : [{ key: "Content-Type", value: "application/json" }])
+            
+            // Format body if exists
+            if (request.body) {
+              setBody(JSON.stringify(request.body, null, 2))
+            }
+            
+            // Clear transferred request after loading
+            localStorage.removeItem('transferredRequest')
+            toast.success('Request loaded from AI Assistant')
+          } catch (error) {
+            console.error('Error loading transferred request:', error)
+            toast.error('Failed to load transferred request')
+          }
+        }
+      }
+
+      loadTransferredRequest()
+    }
+  }, [currentTab, setMethod, setUrl, setHeaders, setBody])
 
   const handleSend = async () => {
     if (!url) {
@@ -67,10 +107,10 @@ export function ApiTester({ className }: ApiTesterProps) {
       setResponse(null)
       setResponseTime(null)
 
-      const headerObj = headers.reduce((acc, h) => {
+      const headerObj = headers.reduce((acc: Record<string, string>, h: Header) => {
         if (h.key && h.value) acc[h.key] = h.value
         return acc
-      }, {} as Record<string, string>)
+      }, {})
 
       const proxyResponse = await fetch('/api/proxy', {
         method: 'POST',
@@ -139,10 +179,7 @@ export function ApiTester({ className }: ApiTesterProps) {
   }
 
   const handleReset = () => {
-    setMethod("GET")
-    setUrl("")
-    setHeaders([{ key: "Content-Type", value: "application/json" }])
-    setBody("")
+    resetForm()
     setResponse(null)
     setResponseTime(null)
     toast.success("Request form cleared")
@@ -150,7 +187,6 @@ export function ApiTester({ className }: ApiTesterProps) {
 
   return (
     <div className={cn("space-y-4 w-full max-w-full overflow-hidden", className)}>
-      {/* Request Section */}
       <Card className="p-4 space-y-4">
         <div className="flex items-center justify-between">
           <div className="flex flex-col sm:flex-row gap-2 flex-1">
@@ -182,90 +218,88 @@ export function ApiTester({ className }: ApiTesterProps) {
           </Button>
         </div>
 
-        <div className="space-y-4">
-          {/* Headers Section */}
-          <div className="space-y-2">
-            <div className="flex items-center justify-between">
-              <h3 className="text-sm font-medium">Headers</h3>
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => setHeaders([...headers, { key: "", value: "" }])}
-                className="h-8"
-              >
-                Add Header
-              </Button>
-            </div>
-            <div className="space-y-2">
-              {headers.map((header, index) => (
-                <div key={index} className="flex flex-col sm:flex-row gap-2">
-                  <Input
-                    value={header.key}
-                    onChange={(e) => {
-                      const newHeaders = [...headers]
-                      newHeaders[index].key = e.target.value
-                      setHeaders(newHeaders)
-                    }}
-                    placeholder="Key"
-                    className="flex-1"
-                  />
-                  <Input
-                    value={header.value}
-                    onChange={(e) => {
-                      const newHeaders = [...headers]
-                      newHeaders[index].value = e.target.value
-                      setHeaders(newHeaders)
-                    }}
-                    placeholder="Value"
-                    className="flex-1"
-                  />
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    onClick={() => setHeaders(headers.filter((_, i) => i !== index))}
-                    className="h-10 w-10 hover:bg-destructive/10 hover:text-destructive"
-                  >
-                    ×
-                  </Button>
-                </div>
-              ))}
-            </div>
+        {/* Headers Section */}
+        <div className="space-y-2">
+          <div className="flex items-center justify-between">
+            <h3 className="text-sm font-medium">Headers</h3>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => setHeaders([...headers, { key: "", value: "" }])}
+              className="h-8"
+            >
+              Add Header
+            </Button>
           </div>
-
-          {/* Body Section - Only show for specific methods */}
-          {showBodyTab && (
-            <>
-              <Separator />
-              <div className="space-y-2">
-                <div className="flex items-center justify-between">
-                  <h3 className="text-sm font-medium">Request Body</h3>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => {
-                      try {
-                        const formatted = JSON.stringify(JSON.parse(body), null, 2)
-                        setBody(formatted)
-                      } catch (e) {
-                        toast.error("Invalid JSON format")
-                      }
-                    }}
-                    className="h-8"
-                  >
-                    <Code className="h-4 w-4 mr-2" />
-                    Format JSON
-                  </Button>
-                </div>
-                <textarea
-                  value={body}
-                  onChange={(e) => setBody(e.target.value)}
-                  className="min-h-[200px] w-full rounded-lg border border-input bg-transparent px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 resize-y"
-                  placeholder="Enter request body (JSON)"
+          <div className="space-y-2">
+            {headers.map((header: Header, index: number) => (
+              <div key={index} className="flex flex-col sm:flex-row gap-2">
+                <Input
+                  value={header.key}
+                  onChange={(e) => {
+                    const newHeaders = [...headers]
+                    newHeaders[index].key = e.target.value
+                    setHeaders(newHeaders)
+                  }}
+                  placeholder="Key"
+                  className="flex-1"
                 />
+                <Input
+                  value={header.value}
+                  onChange={(e) => {
+                    const newHeaders = [...headers]
+                    newHeaders[index].value = e.target.value
+                    setHeaders(newHeaders)
+                  }}
+                  placeholder="Value"
+                  className="flex-1"
+                />
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={() => setHeaders(headers.filter((_: Header, i: number) => i !== index))}
+                  className="h-10 w-10 hover:bg-destructive/10 hover:text-destructive"
+                >
+                  ×
+                </Button>
               </div>
-            </>
-          )}
+            ))}
+          </div>
         </div>
+
+        {/* Body Section */}
+        {showBodyTab && (
+          <>
+            <Separator />
+            <div className="space-y-2">
+              <div className="flex items-center justify-between">
+                <h3 className="text-sm font-medium">Request Body</h3>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => {
+                    try {
+                      const formatted = JSON.stringify(JSON.parse(body), null, 2)
+                      setBody(formatted)
+                    } catch (e) {
+                      toast.error("Invalid JSON format")
+                    }
+                  }}
+                  className="h-8"
+                >
+                  <Code className="h-4 w-4 mr-2" />
+                  Format JSON
+                </Button>
+              </div>
+              <textarea
+                value={body}
+                onChange={(e) => setBody(e.target.value)}
+                className="min-h-[200px] w-full rounded-lg border border-input bg-transparent px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 resize-y"
+                placeholder="Enter request body (JSON)"
+              />
+            </div>
+          </>
+        )}
       </Card>
 
       {/* Recent History */}

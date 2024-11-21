@@ -34,9 +34,9 @@ export function NaturalLanguageInput() {
   }
 
   const suggestions = [
-    "Get all users",
-    "Create new user",
-    "Update user profile",
+    "Get all users with sample data",
+    "Create new user with sample data",
+    "Update user profile with sample data",
     "Delete user"
   ]
 

@@ -1,4 +1,6 @@
 import { AIRequestContext } from './ai-providers/types'
+import { useAPIKeysStore } from './stores/api-keys-store'
+import { AIProviderId } from './constants/ai-providers'
 
 interface QueryResult {
   suggestions: string[]
@@ -11,11 +13,18 @@ interface QueryResult {
   context?: AIRequestContext
 }
 
-export async function processQuery(query: string, provider?: string): Promise<QueryResult> {
+export async function processQuery(query: string, provider: AIProviderId): Promise<QueryResult> {
+  const apiKey = useAPIKeysStore.getState().getKey(provider)
+  
+  if (!apiKey) {
+    throw new Error(`API key for ${provider} is not configured`)
+  }
+
   const response = await fetch('/api/ai/process', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
+      'X-API-Key': apiKey
     },
     body: JSON.stringify({ query, provider })
   })

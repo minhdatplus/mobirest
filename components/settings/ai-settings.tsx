@@ -14,10 +14,11 @@ import {
 import { useState, useEffect } from "react"
 import { toast } from "sonner"
 import { useAIProviderStore } from '@/lib/stores/ai-provider-store'
-import { AI_PROVIDERS } from '@/lib/constants/ai-providers'
+import { AI_PROVIDERS, type AIProviderId } from '@/lib/constants/ai-providers'
+import { useAPIKeysStore } from '@/lib/stores/api-keys-store'
 
 interface AISettings {
-  defaultProvider: string
+  defaultProvider: AIProviderId
   openaiApiKey: string
   geminiApiKey: string
   anthropicApiKey: string
@@ -26,30 +27,29 @@ interface AISettings {
 
 export function AISettings() {
   const { defaultProvider, setDefaultProvider } = useAIProviderStore()
+  const { keys, setKey } = useAPIKeysStore()
   const [settings, setSettings] = useState<AISettings>({
-    defaultProvider: defaultProvider,
-    openaiApiKey: '',
-    geminiApiKey: '',
-    anthropicApiKey: '',
-    groqApiKey: '',
+    defaultProvider,
+    ...keys
   })
 
   useEffect(() => {
-    // Load saved settings
-    const savedSettings = localStorage.getItem('aiSettings')
-    if (savedSettings) {
-      const parsed = JSON.parse(savedSettings)
-      setSettings(prev => ({
-        ...prev,
-        ...parsed,
-        defaultProvider // Always use store's defaultProvider
-      }))
-    }
-  }, [defaultProvider])
+    setSettings(prev => ({
+      ...prev,
+      defaultProvider,
+      ...keys
+    }))
+  }, [defaultProvider, keys])
 
   const handleSave = () => {
-    setDefaultProvider(settings.defaultProvider as AIProviderId)
-    localStorage.setItem('aiSettings', JSON.stringify(settings))
+    setDefaultProvider(settings.defaultProvider)
+    
+    // Save API keys
+    AI_PROVIDERS.forEach(provider => {
+      const keyName = `${provider.id}ApiKey` as keyof typeof keys
+      setKey(provider.id, settings[keyName])
+    })
+    
     toast.success('AI settings saved successfully')
   }
 

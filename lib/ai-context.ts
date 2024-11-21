@@ -1,5 +1,6 @@
 import { createContext, useContext } from 'react'
 import { AIRequestContext } from './ai-providers/types'
+import { AIProviderId } from './constants/ai-providers'
 
 export interface RequestDetails {
   method?: string
@@ -18,8 +19,8 @@ interface AIContextType {
   error: string | null
   requestDetails: RequestDetails
   requestHistory: RequestDetails[]
-  selectedProvider: string
-  setSelectedProvider: (provider: string) => void
+  selectedProvider: AIProviderId
+  setSelectedProvider: (provider: AIProviderId) => void
   processNaturalLanguage: (query: string) => Promise<void>
   generateDocumentation: (response: any) => Promise<void>
   analyzeError: (error: any) => Promise<void>
