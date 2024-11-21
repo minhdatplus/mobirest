@@ -4,7 +4,7 @@ import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
-import { Settings, Home, Sun, Moon, Laptop, History, Star } from "lucide-react"
+import { Settings, Home, Sun, Moon, Laptop, History, Star, Book } from "lucide-react"
 import { useTheme } from "next-themes"
 import {
   DropdownMenu,
@@ -24,6 +24,11 @@ const routes = [
     href: "/settings",
     label: "Settings",
     icon: Settings
+  },
+  {
+    href: "/docs",
+    label: "Documentation",
+    icon: Book
   }
 ]
 
