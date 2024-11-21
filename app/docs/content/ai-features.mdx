@@ -1,0 +1,80 @@
+# AI Documentation Features
+
+## Documentation Generator
+...
+
+## Smart Error Detection
+
+### Overview
+Our AI-powered error detection helps you understand and fix API errors quickly:
+
+1. **Error Analysis**
+   - Automatic error pattern detection
+   - Clear error explanations
+   - Common causes identification
+   - Suggested solutions
+
+2. **Error Types**
+   ```json
+   {
+     "validation": "Input validation errors",
+     "network": "Connection and CORS issues",
+     "auth": "Authentication problems",
+     "rate_limit": "Rate limiting errors"
+   }
+   ```
+
+### Key Features
+
+1. **Real-time Analysis**
+   - Instant error detection
+   - Clear error messages
+   - Actionable solutions
+   - One-click fixes when possible
+
+2. **Common Error Patterns**
+   - CORS issues
+   - Authentication errors
+   - Invalid JSON format
+   - Network connectivity
+   - Rate limiting
+
+3. **Solution Suggestions**
+   - Step-by-step fixes
+   - Code examples
+   - Best practices
+   - Prevention tips
+
+### Example Error Analysis
+```json
+{
+  "error": {
+    "type": "validation",
+    "code": "INVALID_JSON",
+    "message": "Invalid JSON format in request body"
+  },
+  "solutions": [
+    {
+      "description": "Format JSON data",
+      "canAutoFix": true
+    },
+    {
+      "description": "Check for missing quotes or commas",
+      "canAutoFix": false
+    }
+  ]
+}
+```
+
+### Best Practices
+1. **Error Prevention**
+   - Validate input before sending
+   - Check API documentation
+   - Use proper content types
+   - Handle rate limits
+
+2. **Troubleshooting**
+   - Read error messages carefully
+   - Try suggested solutions
+   - Check network connectivity
+   - Verify authentication 

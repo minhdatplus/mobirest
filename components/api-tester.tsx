@@ -28,6 +28,9 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip"
+import { ClientErrorAnalyzer } from '@/lib/services/client-error-analyzer'
+import { ErrorAnalysis } from '@/lib/types/error-detection'
+import { ErrorDialog } from './error-dialog'
 
 interface ApiTesterProps {
   className?: string
@@ -63,6 +66,9 @@ export function ApiTester({ className }: ApiTesterProps) {
   const currentTab = searchParams.get('tab')
   const [documentation, setDocumentation] = React.useState<GeneratedDocumentation | null>(null)
   const [isGeneratingDocs, setIsGeneratingDocs] = React.useState(false)
+  const [errorAnalysis, setErrorAnalysis] = React.useState<ErrorAnalysis | null>(null)
+  const errorAnalyzer = new ClientErrorAnalyzer()
+  const [showErrorDialog, setShowErrorDialog] = React.useState(false)
 
   const methods: Method[] = ["GET", "POST", "PUT", "DELETE", "PATCH"]
   const methodsWithBody = ["POST", "PUT", "PATCH"]
@@ -167,15 +173,21 @@ export function ApiTester({ className }: ApiTesterProps) {
         setHistory(prev => [historyItem, ...prev].slice(0, settings.maxHistoryItems))
       }
 
-    } catch (error: any) {
-      showToast.error(error.message || "An error occurred")
-      setResponse({
-        error: error.message,
-        status: 0,
-        statusText: "Error",
-        headers: {},
-        data: null
-      })
+    } catch (error) {
+      const analysis = errorAnalyzer.analyzeError(error)
+      setErrorAnalysis(analysis)
+      
+      // Show error UI with solutions
+      if (analysis.solutions.length > 0) {
+        showToast.error(analysis.error.message, {
+          action: {
+            label: 'View Solutions',
+            onClick: () => setShowErrorDialog(true)
+          }
+        })
+      } else {
+        showToast.error(analysis.error.message)
+      }
     } finally {
       setIsLoading(false)
     }
@@ -562,6 +574,18 @@ export function ApiTester({ className }: ApiTesterProps) {
           />
         </div>
       </div>
+
+      {errorAnalysis && (
+        <ErrorDialog
+          analysis={errorAnalysis}
+          onApplyFix={(fix: () => void) => {
+            fix()
+            setErrorAnalysis(null)
+            setShowErrorDialog(false)
+          }}
+          onClose={() => setShowErrorDialog(false)}
+        />
+      )}
     </div>
   )
 }
