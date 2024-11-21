@@ -1,7 +1,7 @@
 "use client"
 
 import * as React from "react"
-import { Send, Save, Clock, Copy, Check, Code, Loader2, RotateCcw } from "lucide-react"
+import { Send, Save, Clock, Copy, Check, Code, Loader2, RotateCcw, Book } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { cn } from "@/lib/utils"
@@ -18,6 +18,10 @@ import { AI_PROVIDERS } from '@/lib/constants/ai-providers'
 import { useSearchParams } from 'next/navigation'
 import { useClassicFormStore } from '@/lib/stores/classic-form-store'
 import { Method, Header } from '@/lib/stores/classic-form-store'
+import { DocumentationViewer } from './ai/documentation-viewer'
+import { DocumentationGenerator } from '@/lib/services/documentation-generator'
+import { GeneratedDocumentation } from '@/lib/types/ai-documentation'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 
 interface ApiTesterProps {
   className?: string
@@ -51,6 +55,8 @@ export function ApiTester({ className }: ApiTesterProps) {
   const [isLoading, setIsLoading] = React.useState(false)
   const searchParams = useSearchParams()
   const currentTab = searchParams.get('tab')
+  const [documentation, setDocumentation] = React.useState<GeneratedDocumentation | null>(null)
+  const [isGeneratingDocs, setIsGeneratingDocs] = React.useState(false)
 
   const methods: Method[] = ["GET", "POST", "PUT", "DELETE", "PATCH"]
   const methodsWithBody = ["POST", "PUT", "PATCH"]
@@ -110,28 +116,32 @@ export function ApiTester({ className }: ApiTesterProps) {
         return acc
       }, {})
 
-      await showToast.promise(
-        fetch('/api/proxy', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            url,
-            method,
-            headers: headerObj,
-            data: method !== 'GET' && body ? JSON.parse(body) : undefined
-          })
-        }),
-        {
-          loading: 'Sending request...',
-          success: 'Request completed successfully',
-          error: 'Failed to send request'
-        }
-      )
+      // Tách riêng phần fetch và toast
+      const fetchPromise = fetch('/api/proxy', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          url,
+          method,
+          headers: headerObj,
+          data: method !== 'GET' && body ? JSON.parse(body) : undefined
+        })
+      })
 
-      const endTime = performance.now()
+      // Hiển thị toast trong khi đợi fetch
+      showToast.promise(fetchPromise, {
+        loading: 'Sending request...',
+        success: 'Request completed successfully',
+        error: 'Failed to send request'
+      })
+
+      // Đợi response và parse JSON
+      const response = await fetchPromise
+      const responseData = await response.json()
       
+      const endTime = performance.now()
       setResponseTime(Math.round(endTime - startTime))
       
       if (responseData.error) {
@@ -151,7 +161,6 @@ export function ApiTester({ className }: ApiTesterProps) {
         setHistory(prev => [historyItem, ...prev].slice(0, settings.maxHistoryItems))
       }
 
-      showToast.success("Request completed successfully")
     } catch (error: any) {
       showToast.error(error.message || "An error occurred")
       setResponse({
@@ -187,6 +196,37 @@ export function ApiTester({ className }: ApiTesterProps) {
     setResponse(null)
     setResponseTime(null)
     showToast.success("Request form cleared")
+  }
+
+  const handleGenerateDocs = async () => {
+    if (!response) return
+
+    setIsGeneratingDocs(true)
+    try {
+      const result = await fetch('/api/ai/generate-docs', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          endpoint: url,
+          method,
+          response: response.data,
+          requestData: methodsWithBody.includes(method) ? JSON.parse(body) : undefined
+        }),
+      })
+
+      if (!result.ok) throw new Error('Failed to generate documentation')
+
+      const { documentation } = await result.json()
+      setDocumentation(documentation)
+      showToast.success('Documentation generated successfully')
+    } catch (error) {
+      showToast.error('Failed to generate documentation')
+      console.error(error)
+    } finally {
+      setIsGeneratingDocs(false)
+    }
   }
 
   return (
@@ -379,6 +419,24 @@ export function ApiTester({ className }: ApiTesterProps) {
                 <Button
                   variant="ghost"
                   size="sm"
+                  onClick={handleGenerateDocs}
+                  disabled={isGeneratingDocs}
+                >
+                  {isGeneratingDocs ? (
+                    <>
+                      <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                      Generating Docs...
+                    </>
+                  ) : (
+                    <>
+                      <Book className="h-4 w-4 mr-2" />
+                      Generate Docs
+                    </>
+                  )}
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="sm"
                   onClick={copyResponse}
                   className="hover:bg-accent whitespace-nowrap"
                 >
@@ -396,19 +454,40 @@ export function ApiTester({ className }: ApiTesterProps) {
                 </Button>
               </div>
             </div>
-            <div className="border-t bg-muted/50 p-4 overflow-hidden">
-              <div className="relative">
-                <pre className="text-sm overflow-x-auto max-h-[400px] font-mono">
-                  <code className="block whitespace-pre">
-                    {response.error ? (
-                      <span className="text-destructive">{response.error}</span>
-                    ) : (
-                      JSON.stringify(response.data, null, 2)
-                    )}
-                  </code>
-                </pre>
-              </div>
-            </div>
+
+            <Tabs defaultValue="response" className="w-full">
+              <TabsList className="px-4">
+                <TabsTrigger value="response">Response</TabsTrigger>
+                <TabsTrigger value="documentation" disabled={!documentation}>
+                  Documentation
+                </TabsTrigger>
+              </TabsList>
+
+              <TabsContent value="response" className="m-0">
+                <div className="bg-muted/50 p-4 overflow-hidden">
+                  <div className="relative">
+                    <pre className="text-sm overflow-x-auto max-h-[400px] font-mono">
+                      <code className="block whitespace-pre">
+                        {response.error ? (
+                          <span className="text-destructive">{response.error}</span>
+                        ) : (
+                          JSON.stringify(response.data, null, 2)
+                        )}
+                      </code>
+                    </pre>
+                  </div>
+                </div>
+              </TabsContent>
+
+              <TabsContent value="documentation" className="m-0">
+                {documentation && (
+                  <DocumentationViewer 
+                    documentation={documentation}
+                    className="border-0 rounded-none"
+                  />
+                )}
+              </TabsContent>
+            </Tabs>
           </div>
         </div>
       )}
