@@ -32,7 +32,6 @@ type ResponseData = {
 interface CollectionSaveProps extends Omit<Collection, "id"> {}
 
 export function ApiTester({ className }: ApiTesterProps) {
-  const { defaultProvider } = useAIProviderStore()
   const [method, setMethod] = React.useState<Method>("GET")
   const [url, setUrl] = React.useState("")
   const [headers, setHeaders] = React.useState([
@@ -155,23 +154,6 @@ export function ApiTester({ className }: ApiTesterProps) {
       <Card className="p-4 space-y-4">
         <div className="flex items-center justify-between">
           <div className="flex flex-col sm:flex-row gap-2 flex-1">
-            <Select 
-              value={defaultProvider}
-              onValueChange={(value) => {
-                useAIProviderStore.getState().setDefaultProvider(value)
-              }}
-            >
-              <SelectTrigger className="w-full sm:w-[120px]">
-                <SelectValue placeholder="Provider" />
-              </SelectTrigger>
-              <SelectContent>
-                {AI_PROVIDERS.map(provider => (
-                  <SelectItem key={provider.id} value={provider.id}>
-                    {provider.name}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
             <Select value={method} onValueChange={(value: Method) => setMethod(value)}>
               <SelectTrigger className="w-full sm:w-[100px]">
                 <SelectValue placeholder="Method" />
