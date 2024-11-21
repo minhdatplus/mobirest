@@ -1,7 +1,6 @@
 'use client'
 
 import { Label } from "@/components/ui/label"
-import { Button } from "@/components/ui/button"
 import { Separator } from "@/components/ui/separator"
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 import { toast } from "sonner"
@@ -9,21 +8,22 @@ import { Palette } from "lucide-react"
 import { useEffect, useState } from "react"
 import { useAIProviderStore } from '@/lib/stores/ai-provider-store'
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select"
+import { AI_PROVIDERS } from '@/lib/constants/ai-providers'
 
 const THEME_YEARS = [
-  { year: "2024", name: "Peach Fuzz", color: "#ff8c7f" },
-  { year: "2023", name: "Viva Magenta", color: "#BE3455" },
-  { year: "2022", name: "Very Peri", color: "#6667AB" },
-  { year: "2021", name: "Ultimate Gray", color: "#939597" },
-  { year: "2020", name: "Classic Blue", color: "#0F4C81" },
-]
+  { year: "2024", name: "Peach Fuzz", color: "#ff8c7f", hsl: "hsl(6, 100%, 75%)" },
+  { year: "2023", name: "Viva Magenta", color: "#BE3455", hsl: "hsl(343, 57%, 47%)" },
+  { year: "2022", name: "Very Peri", color: "#6667AB", hsl: "hsl(239, 31%, 54%)" },
+  { year: "2021", name: "Ultimate Gray", color: "#939597", hsl: "hsl(210, 2%, 58%)" },
+  { year: "2020", name: "Classic Blue", color: "#0F4C81", hsl: "hsl(210, 79%, 28%)" },
+] as const
 
 export function ThemeSettings() {
   const { defaultProvider, setDefaultProvider, isHydrated } = useAIProviderStore()
   const [currentTheme, setCurrentTheme] = useState("2024")
+  const [previewTheme, setPreviewTheme] = useState<string | null>(null)
 
   useEffect(() => {
-    // Load saved theme on mount
     const savedTheme = localStorage.getItem('pantone-theme') || "2024"
     setCurrentTheme(savedTheme)
     applyTheme(savedTheme)
@@ -46,22 +46,20 @@ export function ThemeSettings() {
     toast.success(`Theme updated to ${THEME_YEARS.find(t => t.year === year)?.name}`)
   }
 
-  // Load initial value from localStorage
-  useEffect(() => {
-    const stored = localStorage.getItem('ai-provider-storage')
-    if (stored) {
-      try {
-        const { defaultProvider } = JSON.parse(stored)
-        setDefaultProvider(defaultProvider)
-      } catch (e) {
-        console.error('Error loading stored provider:', e)
-      }
-    }
-  }, [setDefaultProvider])
-
-  if (!isHydrated) {
-    return null // hoặc loading state
+  const getThemePreviewStyle = (year: string) => {
+    const theme = THEME_YEARS.find(t => t.year === year)
+    if (!theme) return {}
+    
+    return {
+      '--theme-preview-color': theme.hsl,
+      '--theme-preview-foreground': 
+        year === "2024" || year === "2021" 
+          ? "hsl(222, 47%, 11%)" 
+          : "hsl(0, 0%, 100%)",
+    } as React.CSSProperties
   }
+
+  if (!isHydrated) return null
 
   return (
     <div className="space-y-6">
@@ -82,7 +80,11 @@ export function ThemeSettings() {
             className="grid grid-cols-3 gap-4"
           >
             {THEME_YEARS.map((theme) => (
-              <div key={theme.year}>
+              <div 
+                key={theme.year}
+                className="theme-preview-container"
+                style={getThemePreviewStyle(theme.year)}
+              >
                 <RadioGroupItem
                   value={theme.year}
                   id={theme.year}
@@ -90,7 +92,7 @@ export function ThemeSettings() {
                 />
                 <Label
                   htmlFor={theme.year}
-                  className="flex flex-col items-center justify-between rounded-md border-2 border-muted bg-popover p-4 hover:bg-accent hover:text-accent-foreground peer-data-[state=checked]:border-primary [&:has([data-state=checked])]:border-primary"
+                  className="flex flex-col items-center justify-between rounded-md border-2 border-muted bg-popover p-4 hover:bg-[var(--theme-preview-color)] hover:text-[var(--theme-preview-foreground)] peer-data-[state=checked]:border-primary [&:has([data-state=checked])]:border-primary transition-all duration-200"
                 >
                   <Palette 
                     className="mb-2 h-6 w-6" 
@@ -104,14 +106,13 @@ export function ThemeSettings() {
           </RadioGroup>
         </div>
       </div>
+
       <div className="space-y-2">
         <Label>Default AI Provider</Label>
         <Select 
           value={defaultProvider}
           onValueChange={(value) => {
-            setDefaultProvider(value)
-            // Đảm bảo giá trị được lưu ngay lập tức
-            localStorage.setItem('ai-provider-storage', JSON.stringify({ defaultProvider: value }))
+            setDefaultProvider(value as AIProviderId)
             toast.success(`Default AI provider set to ${value}`)
           }}
         >
@@ -119,10 +120,11 @@ export function ThemeSettings() {
             <SelectValue placeholder="Select AI provider" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="openai">OpenAI</SelectItem>
-            <SelectItem value="anthropic">Anthropic</SelectItem>
-            <SelectItem value="gemini">Gemini</SelectItem>
-            <SelectItem value="groq">Groq</SelectItem>
+            {AI_PROVIDERS.map(provider => (
+              <SelectItem key={provider.id} value={provider.id}>
+                {provider.name}
+              </SelectItem>
+            ))}
           </SelectContent>
         </Select>
       </div>

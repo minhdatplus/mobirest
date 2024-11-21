@@ -634,3 +634,13 @@
          focus-visible:translate-y-[-2px]
          transition-transform duration-200;
 }
+
+.theme-preview-container {
+  --theme-preview-color: transparent;
+  --theme-preview-foreground: inherit;
+}
+
+.theme-preview-container label:hover {
+  background-color: var(--theme-preview-color);
+  color: var(--theme-preview-foreground);
+}
