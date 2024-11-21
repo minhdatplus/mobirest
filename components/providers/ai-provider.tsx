@@ -6,6 +6,7 @@ import { processQuery } from '@/lib/ai-service'
 import { toast } from 'sonner'
 import type { RequestDetails } from '@/lib/ai-context'
 import { useRouter } from 'next/navigation'
+import { useAIProviderStore } from '@/lib/stores/ai-provider-store'
 
 interface AIProviderProps {
   children: React.ReactNode
@@ -13,13 +14,14 @@ interface AIProviderProps {
 
 export function AIProvider({ children }: AIProviderProps) {
   const router = useRouter()
+  const { defaultProvider } = useAIProviderStore()
   const [isProcessing, setIsProcessing] = useState(false)
   const [lastQuery, setLastQuery] = useState<string | null>(null)
   const [suggestions, setSuggestions] = useState<string[]>([])
   const [error, setError] = useState<string | null>(null)
   const [requestDetails, setRequestDetails] = useState<RequestDetails>({})
   const [requestHistory, setRequestHistory] = useState<RequestDetails[]>([])
-  const [selectedProvider, setSelectedProvider] = useState<string>('openai')
+  const [selectedProvider, setSelectedProvider] = useState<string>(defaultProvider)
   const [lastTransferredRequest, setLastTransferredRequest] = useState<string | null>(null)
   const undoStack = useRef<RequestDetails[]>([])
 
@@ -30,6 +32,11 @@ export function AIProvider({ children }: AIProviderProps) {
       setLastTransferredRequest(transferredRequest)
     }
   }, [])
+
+  // Đồng bộ khi defaultProvider thay đổi
+  useEffect(() => {
+    setSelectedProvider(defaultProvider)
+  }, [defaultProvider])
 
   const processNaturalLanguage = async (query: string) => {
     try {
@@ -108,7 +115,11 @@ export function AIProvider({ children }: AIProviderProps) {
         requestDetails,
         requestHistory,
         selectedProvider,
-        setSelectedProvider,
+        setSelectedProvider: (provider: string) => {
+          setSelectedProvider(provider)
+          // Cập nhật store khi thay đổi provider
+          useAIProviderStore.getState().setDefaultProvider(provider)
+        },
         processNaturalLanguage,
         generateDocumentation: async () => {},
         analyzeError: async () => {},

@@ -7,6 +7,8 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 import { toast } from "sonner"
 import { Palette } from "lucide-react"
 import { useEffect, useState } from "react"
+import { useAIProviderStore } from '@/lib/stores/ai-provider-store'
+import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select"
 
 const THEME_YEARS = [
   { year: "2024", name: "Peach Fuzz", color: "#ff8c7f" },
@@ -17,6 +19,7 @@ const THEME_YEARS = [
 ]
 
 export function ThemeSettings() {
+  const { defaultProvider, setDefaultProvider, isHydrated } = useAIProviderStore()
   const [currentTheme, setCurrentTheme] = useState("2024")
 
   useEffect(() => {
@@ -41,6 +44,23 @@ export function ThemeSettings() {
   const handleThemeChange = (year: string) => {
     applyTheme(year)
     toast.success(`Theme updated to ${THEME_YEARS.find(t => t.year === year)?.name}`)
+  }
+
+  // Load initial value from localStorage
+  useEffect(() => {
+    const stored = localStorage.getItem('ai-provider-storage')
+    if (stored) {
+      try {
+        const { defaultProvider } = JSON.parse(stored)
+        setDefaultProvider(defaultProvider)
+      } catch (e) {
+        console.error('Error loading stored provider:', e)
+      }
+    }
+  }, [setDefaultProvider])
+
+  if (!isHydrated) {
+    return null // hoặc loading state
   }
 
   return (
@@ -83,6 +103,28 @@ export function ThemeSettings() {
             ))}
           </RadioGroup>
         </div>
+      </div>
+      <div className="space-y-2">
+        <Label>Default AI Provider</Label>
+        <Select 
+          value={defaultProvider}
+          onValueChange={(value) => {
+            setDefaultProvider(value)
+            // Đảm bảo giá trị được lưu ngay lập tức
+            localStorage.setItem('ai-provider-storage', JSON.stringify({ defaultProvider: value }))
+            toast.success(`Default AI provider set to ${value}`)
+          }}
+        >
+          <SelectTrigger>
+            <SelectValue placeholder="Select AI provider" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="openai">OpenAI</SelectItem>
+            <SelectItem value="anthropic">Anthropic</SelectItem>
+            <SelectItem value="gemini">Gemini</SelectItem>
+            <SelectItem value="groq">Groq</SelectItem>
+          </SelectContent>
+        </Select>
       </div>
     </div>
   )

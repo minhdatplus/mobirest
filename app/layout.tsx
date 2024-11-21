@@ -5,6 +5,7 @@ import { ThemeProvider } from '@/components/theme/theme-provider'
 import { Navigation } from '@/components/layout/navigation'
 import { Toaster } from 'sonner'
 import { AIProvider } from '@/components/providers/ai-provider'
+import { StoreProvider } from '@/components/providers/store-provider'
 
 const inter = Inter({ subsets: ['latin'] })
 
@@ -27,17 +28,19 @@ export default function RootLayout({
           enableSystem
           disableTransitionOnChange={false}
         >
-          <AIProvider>
-            <div className="flex min-h-screen flex-col">
-              <Navigation />
-              <main className="flex-1 container py-6">
-                <a href="#main-content" className="sr-only focus:not-sr-only">
-                  Skip to main content
-                </a>
-                {children}
-              </main>
-            </div>
-          </AIProvider>
+          <StoreProvider>
+            <AIProvider>
+              <div className="flex min-h-screen flex-col">
+                <Navigation />
+                <main className="flex-1 container py-6">
+                  <a href="#main-content" className="sr-only focus:not-sr-only">
+                    Skip to main content
+                  </a>
+                  {children}
+                </main>
+              </div>
+            </AIProvider>
+          </StoreProvider>
           <Toaster position="top-right" />
         </ThemeProvider>
       </body>

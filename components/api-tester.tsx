@@ -13,6 +13,8 @@ import { toast } from "sonner"
 import { Card } from "@/components/ui/card"
 import { Separator } from "@/components/ui/separator"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { useAIProviderStore } from '@/lib/stores/ai-provider-store'
+import { AI_PROVIDERS } from '@/lib/constants/ai-providers'
 
 interface ApiTesterProps {
   className?: string
@@ -30,6 +32,7 @@ type ResponseData = {
 interface CollectionSaveProps extends Omit<Collection, "id"> {}
 
 export function ApiTester({ className }: ApiTesterProps) {
+  const { defaultProvider } = useAIProviderStore()
   const [method, setMethod] = React.useState<Method>("GET")
   const [url, setUrl] = React.useState("")
   const [headers, setHeaders] = React.useState([
@@ -50,27 +53,6 @@ export function ApiTester({ className }: ApiTesterProps) {
   const methods: Method[] = ["GET", "POST", "PUT", "DELETE", "PATCH"]
   const methodsWithBody = ["POST", "PUT", "PATCH"]
   const showBodyTab = methodsWithBody.includes(method)
-
-  React.useEffect(() => {
-    const loadTransferredRequest = () => {
-      const transferredRequest = localStorage.getItem('transferredRequest')
-      if (transferredRequest) {
-        try {
-          const request = JSON.parse(transferredRequest)
-          setMethod(request.method as Method)
-          setUrl(request.url)
-          setHeaders(Object.entries(request.headers).map(([key, value]) => ({ key, value: value as string })))
-          if (request.body) {
-            setBody(JSON.stringify(request.body, null, 2))
-          }
-        } catch (error) {
-          console.error('Error loading transferred request:', error)
-        }
-      }
-    }
-
-    loadTransferredRequest()
-  }, [])
 
   const handleSend = async () => {
     if (!url) {
@@ -173,6 +155,23 @@ export function ApiTester({ className }: ApiTesterProps) {
       <Card className="p-4 space-y-4">
         <div className="flex items-center justify-between">
           <div className="flex flex-col sm:flex-row gap-2 flex-1">
+            <Select 
+              value={defaultProvider}
+              onValueChange={(value) => {
+                useAIProviderStore.getState().setDefaultProvider(value)
+              }}
+            >
+              <SelectTrigger className="w-full sm:w-[120px]">
+                <SelectValue placeholder="Provider" />
+              </SelectTrigger>
+              <SelectContent>
+                {AI_PROVIDERS.map(provider => (
+                  <SelectItem key={provider.id} value={provider.id}>
+                    {provider.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
             <Select value={method} onValueChange={(value: Method) => setMethod(value)}>
               <SelectTrigger className="w-full sm:w-[100px]">
                 <SelectValue placeholder="Method" />

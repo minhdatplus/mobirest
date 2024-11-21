@@ -21,6 +21,7 @@ import {
   CommandGroup,
   CommandItem,
 } from "@/components/ui/command"
+import { AI_PROVIDERS } from '@/lib/constants/ai-providers'
 
 export function NaturalLanguageInput() {
   const [query, setQuery] = useState('')
@@ -51,11 +52,14 @@ export function NaturalLanguageInput() {
           </div>
           <Select value={selectedProvider} onValueChange={setSelectedProvider}>
             <SelectTrigger className="w-[180px]">
-              <SelectValue placeholder="Select AI Provider" />
+              <SelectValue placeholder="Select AI provider" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="openai">OpenAI</SelectItem>
-              <SelectItem value="gemini">Gemini</SelectItem>
+              {AI_PROVIDERS.map(provider => (
+                <SelectItem key={provider.id} value={provider.id}>
+                  {provider.name}
+                </SelectItem>
+              ))}
             </SelectContent>
           </Select>
         </div>

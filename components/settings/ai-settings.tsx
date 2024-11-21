@@ -11,20 +11,44 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { toast } from "sonner"
+import { useAIProviderStore } from '@/lib/stores/ai-provider-store'
+import { AI_PROVIDERS } from '@/lib/constants/ai-providers'
+
+interface AISettings {
+  defaultProvider: string
+  openaiApiKey: string
+  geminiApiKey: string
+  anthropicApiKey: string
+  groqApiKey: string
+}
 
 export function AISettings() {
-  const [settings, setSettings] = useState({
-    defaultProvider: 'openai',
+  const { defaultProvider, setDefaultProvider } = useAIProviderStore()
+  const [settings, setSettings] = useState<AISettings>({
+    defaultProvider: defaultProvider,
     openaiApiKey: '',
     geminiApiKey: '',
     anthropicApiKey: '',
     groqApiKey: '',
   })
 
+  useEffect(() => {
+    // Load saved settings
+    const savedSettings = localStorage.getItem('aiSettings')
+    if (savedSettings) {
+      const parsed = JSON.parse(savedSettings)
+      setSettings(prev => ({
+        ...prev,
+        ...parsed,
+        defaultProvider // Always use store's defaultProvider
+      }))
+    }
+  }, [defaultProvider])
+
   const handleSave = () => {
-    // In production, you should send these to your backend
+    setDefaultProvider(settings.defaultProvider as AIProviderId)
     localStorage.setItem('aiSettings', JSON.stringify(settings))
     toast.success('AI settings saved successfully')
   }
@@ -52,14 +76,16 @@ export function AISettings() {
               <SelectValue placeholder="Select default provider" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="openai">OpenAI</SelectItem>
-              <SelectItem value="gemini">Google Gemini</SelectItem>
-              <SelectItem value="anthropic">Anthropic</SelectItem>
-              <SelectItem value="groq">Groq</SelectItem>
+              {AI_PROVIDERS.map(provider => (
+                <SelectItem key={provider.id} value={provider.id}>
+                  {provider.name}
+                </SelectItem>
+              ))}
             </SelectContent>
           </Select>
         </div>
 
+        {/* OpenAI Settings */}
         <div className="grid gap-2">
           <Label htmlFor="openai-key">OpenAI API Key</Label>
           <Input
@@ -73,6 +99,21 @@ export function AISettings() {
           />
         </div>
 
+        {/* Anthropic Settings */}
+        <div className="grid gap-2">
+          <Label htmlFor="anthropic-key">Anthropic API Key</Label>
+          <Input
+            id="anthropic-key"
+            type="password"
+            value={settings.anthropicApiKey}
+            onChange={(e) =>
+              setSettings(prev => ({ ...prev, anthropicApiKey: e.target.value }))
+            }
+            placeholder="sk-ant-..."
+          />
+        </div>
+
+        {/* Gemini Settings */}
         <div className="grid gap-2">
           <Label htmlFor="gemini-key">Google Gemini API Key</Label>
           <Input
@@ -82,10 +123,23 @@ export function AISettings() {
             onChange={(e) =>
               setSettings(prev => ({ ...prev, geminiApiKey: e.target.value }))
             }
+            placeholder="AIzaSy..."
           />
         </div>
 
-        {/* Add more provider settings as needed */}
+        {/* Groq Settings */}
+        <div className="grid gap-2">
+          <Label htmlFor="groq-key">Groq API Key</Label>
+          <Input
+            id="groq-key"
+            type="password"
+            value={settings.groqApiKey}
+            onChange={(e) =>
+              setSettings(prev => ({ ...prev, groqApiKey: e.target.value }))
+            }
+            placeholder="gsk-..."
+          />
+        </div>
       </div>
 
       <Button onClick={handleSave}>Save Changes</Button>
