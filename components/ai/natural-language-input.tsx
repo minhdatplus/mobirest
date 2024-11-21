@@ -61,7 +61,7 @@ export function NaturalLanguageInput() {
         </div>
         
         <div className="flex gap-2">
-          <Command className="rounded-lg border shadow-md">
+          <Command className="rounded-lg bg-background shadow-none border-none flex-1">
             <CommandInput
               placeholder="e.g. Get all users"
               value={query}
