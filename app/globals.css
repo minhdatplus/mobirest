@@ -5,119 +5,196 @@
 @layer base {
   :root {
     --background: 0 0% 100%;
-    --foreground: 222.2 84% 4.9%;
+    --foreground: 240 10% 3.9%;
+    
     --card: 0 0% 100%;
-    --card-foreground: 222.2 84% 4.9%;
+    --card-foreground: 240 10% 3.9%;
+    
     --popover: 0 0% 100%;
-    --popover-foreground: 222.2 84% 4.9%;
+    --popover-foreground: 240 10% 3.9%;
+    
+    /* Refined primary colors for better contrast */
     --primary: 11 73% 77%;
-    --primary-foreground: 210 40% 98%;
+    --primary-foreground: 240 5.9% 10%;
+    
+    /* Softer secondary colors */
     --secondary: 24 54% 87%;
-    --secondary-foreground: 222.2 47.4% 11.2%;
-    --muted: 24 30% 90%;
-    --muted-foreground: 215.4 16.3% 46.9%;
+    --secondary-foreground: 240 5.9% 10%;
+    
+    /* Muted with better readability */
+    --muted: 240 4.8% 95.9%;
+    --muted-foreground: 240 3.8% 46.1%;
+    
+    /* Accent with improved visibility */
     --accent: 11 40% 60%;
-    --accent-foreground: 222.2 47.4% 11.2%;
+    --accent-foreground: 240 5.9% 10%;
+    
+    /* Clearer destructive state */
     --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 210 40% 98%;
-    --border: 214.3 31.8% 91.4%;
-    --input: 214.3 31.8% 91.4%;
+    --destructive-foreground: 0 0% 98%;
+    
+    /* Refined border and input colors */
+    --border: 240 5.9% 90%;
+    --input: 240 5.9% 90%;
     --ring: var(--primary);
+    
     --radius: 0.5rem;
   }
 
-  /* 2024 - Peach Fuzz */
+  /* Pantone Color Themes with improved contrast ratios */
   .theme-2024 {
     --primary: 11 73% 77%;
-    --primary-foreground: 222 47% 11%;
+    --primary-foreground: 240 5.9% 10%;
     --secondary: 24 54% 87%;
-    --secondary-foreground: 222 47% 11%;
+    --secondary-foreground: 240 5.9% 10%;
     --accent: 11 40% 60%;
     --accent-foreground: 0 0% 100%;
     --ring: hsl(11 73% 77%);
     --border: 11 73% 77%;
+    --muted: 11 30% 95%;
+    --muted-foreground: 11 40% 40%;
   }
 
-  /* 2023 - Viva Magenta */
   .theme-2023 {
     --primary: 337 75% 47%;
     --primary-foreground: 0 0% 100%;
-    --secondary: 337 75% 37%;
-    --secondary-foreground: 0 0% 100%;
-    --accent: 337 75% 57%;
+    --secondary: 337 45% 87%;
+    --secondary-foreground: 337 75% 27%;
+    --accent: 337 65% 57%;
     --accent-foreground: 0 0% 100%;
     --ring: hsl(337 75% 47%);
     --border: 337 75% 47%;
+    --muted: 337 30% 95%;
+    --muted-foreground: 337 40% 40%;
   }
 
-  /* 2022 - Very Peri */
   .theme-2022 {
     --primary: 248 53% 58%;
     --primary-foreground: 0 0% 100%;
-    --secondary: 248 53% 48%;
-    --secondary-foreground: 0 0% 100%;
-    --accent: 248 53% 68%;
-    --accent-foreground: 222 47% 11%;
+    --secondary: 248 33% 88%;
+    --secondary-foreground: 248 53% 38%;
+    --accent: 248 43% 68%;
+    --accent-foreground: 0 0% 100%;
+    --ring: hsl(248 53% 58%);
+    --border: 248 53% 58%;
+    --muted: 248 30% 95%;
+    --muted-foreground: 248 40% 40%;
   }
 
-  /* 2021 - Ultimate Gray & Illuminating */
   .theme-2021 {
     --primary: 83 44% 51%;
-    --primary-foreground: 222 47% 11%;
-    --secondary: 84 0% 88%;
-    --secondary-foreground: 222 47% 11%;
-    --accent: 83 44% 41%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 83 24% 91%;
+    --secondary-foreground: 83 44% 31%;
+    --accent: 83 34% 61%;
     --accent-foreground: 0 0% 100%;
+    --ring: hsl(83 44% 51%);
+    --border: 83 44% 51%;
+    --muted: 83 30% 95%;
+    --muted-foreground: 83 40% 40%;
   }
 
-  /* 2020 - Classic Blue */
   .theme-2020 {
     --primary: 213 62% 45%;
     --primary-foreground: 0 0% 100%;
-    --secondary: 213 62% 35%;
-    --secondary-foreground: 0 0% 100%;
-    --accent: 213 62% 55%;
+    --secondary: 213 42% 85%;
+    --secondary-foreground: 213 62% 25%;
+    --accent: 213 52% 55%;
     --accent-foreground: 0 0% 100%;
+    --ring: hsl(213 62% 45%);
+    --border: 213 62% 45%;
+    --muted: 213 30% 95%;
+    --muted-foreground: 213 40% 40%;
   }
 
   .dark {
-    --background: 222.2 84% 4.9%;
-    --foreground: 210 40% 98%;
-    --card: 222.2 84% 4.9%;
-    --card-foreground: 210 40% 98%;
-    --popover: 222.2 84% 4.9%;
-    --popover-foreground: 210 40% 98%;
+    --background: 240 10% 3.9%;
+    --foreground: 0 0% 98%;
+    
+    --card: 240 10% 3.9%;
+    --card-foreground: 0 0% 98%;
+    
+    --popover: 240 10% 3.9%;
+    --popover-foreground: 0 0% 98%;
+    
+    /* Adjusted for dark mode visibility */
     --primary: 11 73% 77%;
-    --primary-foreground: 222.2 47.4% 11.2%;
-    --secondary: 24 54% 87%;
-    --secondary-foreground: 210 40% 98%;
-    --muted: 24 30% 90%;
-    --muted-foreground: 215 20.2% 65.1%;
-    --accent: 11 40% 60%;
-    --accent-foreground: 210 40% 98%;
+    --primary-foreground: 240 5.9% 10%;
+    
+    --secondary: 240 3.7% 15.9%;
+    --secondary-foreground: 0 0% 98%;
+    
+    --muted: 240 3.7% 15.9%;
+    --muted-foreground: 240 5% 64.9%;
+    
+    --accent: 240 3.7% 15.9%;
+    --accent-foreground: 0 0% 98%;
+    
     --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 210 40% 98%;
-    --border: 217.2 32.6% 17.5%;
-    --input: 217.2 32.6% 17.5%;
-    --ring: var(--primary);
-  }
-}
-
-@layer base {
-  * {
-    @apply border-border;
-  }
-  body {
-    @apply bg-background text-foreground;
+    --destructive-foreground: 0 0% 98%;
+    
+    --border: 240 3.7% 15.9%;
+    --input: 240 3.7% 15.9%;
   }
 }
 
 @layer components {
+  /* Enhanced component styles */
+  .btn-primary {
+    @apply bg-primary text-primary-foreground shadow-sm hover:bg-primary/90 active:bg-primary/95 transition-colors;
+  }
+  
+  .btn-secondary {
+    @apply bg-secondary text-secondary-foreground shadow-sm hover:bg-secondary/80 active:bg-secondary/85 transition-colors;
+  }
+  
   .btn-outline {
-    @apply border border-primary text-primary hover:bg-primary hover:text-primary-foreground;
+    @apply border-2 border-primary text-primary hover:bg-primary hover:text-primary-foreground active:bg-primary/95 transition-colors;
   }
   
   .btn-ghost {
-    @apply hover:bg-accent hover:text-accent-foreground border-transparent;
+    @apply text-foreground/60 hover:text-foreground hover:bg-accent/10 active:bg-accent/15 transition-colors;
+  }
+
+  /* Refined tabs styles */
+  .tabs-list {
+    @apply inline-flex h-11 items-center justify-center rounded-lg bg-muted p-1 text-muted-foreground shadow-sm;
+  }
+
+  .tabs-trigger {
+    @apply inline-flex items-center justify-center whitespace-nowrap rounded-md px-3 py-1.5 text-sm font-medium ring-offset-background transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-sm hover:bg-muted-foreground/10;
+  }
+
+  /* Enhanced card styles */
+  .card-primary {
+    @apply bg-card text-card-foreground shadow-sm border border-border/50 hover:border-border transition-colors;
+  }
+
+  /* Refined input styles */
+  .input-primary {
+    @apply h-11 border-input bg-background text-foreground shadow-sm focus-visible:ring-1 focus-visible:ring-ring hover:border-border transition-colors;
+  }
+
+  /* Enhanced select styles */
+  .select-trigger {
+    @apply h-11 border-input bg-background text-foreground shadow-sm focus:ring-1 focus:ring-ring hover:border-border transition-colors;
+  }
+
+  /* Refined badge styles */
+  .badge-primary {
+    @apply bg-primary/10 text-primary-foreground border border-primary/20 shadow-sm;
+  }
+
+  .badge-secondary {
+    @apply bg-secondary/10 text-secondary-foreground border border-secondary/20 shadow-sm;
+  }
+
+  /* Enhanced dropdown styles */
+  .dropdown-content {
+    @apply z-50 min-w-[8rem] overflow-hidden rounded-md border bg-popover p-1 text-popover-foreground shadow-md;
+  }
+
+  .dropdown-item {
+    @apply relative flex cursor-default select-none items-center rounded-sm px-2 py-1.5 text-sm outline-none transition-colors focus:bg-accent focus:text-accent-foreground hover:bg-accent/50;
   }
 }
