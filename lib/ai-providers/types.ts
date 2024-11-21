@@ -1,7 +1,7 @@
 export interface AIRequestContext {
-  parameters?: string[]
-  dataTypes?: Record<string, string>
-  auth?: Record<string, any>
+  parameters: string[]
+  dataTypes: Record<string, string>
+  auth: Record<string, any>
 }
 
 export interface AIRequest {

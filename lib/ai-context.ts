@@ -1,16 +1,14 @@
 import { createContext, useContext } from 'react'
-
-export interface RequestContext {
-  parameters: string[]
-  dataTypes: Record<string, string>
-  auth: Record<string, any>
-}
+import { AIRequestContext } from './ai-providers/types'
 
 export interface RequestDetails {
   method?: string
   endpoint?: string
-  parameters?: Record<string, any>
-  context?: RequestContext
+  parameters?: {
+    headers?: Record<string, string>
+    body?: any
+  }
+  context?: AIRequestContext
 }
 
 interface AIContextType {

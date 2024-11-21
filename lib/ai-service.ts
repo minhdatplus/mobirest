@@ -4,7 +4,10 @@ interface QueryResult {
   suggestions: string[]
   method?: string
   endpoint?: string
-  parameters?: Record<string, any>
+  parameters?: {
+    headers?: Record<string, string>
+    body?: any
+  }
   context?: AIRequestContext
 }
 

@@ -11,6 +11,7 @@ const badgeVariants = cva(
       variant: {
         default: "badge-primary",
         secondary: "badge-secondary",
+        outline: "badge-outline",
       },
     },
     defaultVariants: {

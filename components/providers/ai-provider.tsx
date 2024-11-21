@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { AIContext } from '@/lib/ai-context'
 import { processQuery } from '@/lib/ai-service'
 import { toast } from 'sonner'
@@ -21,6 +21,7 @@ export function AIProvider({ children }: AIProviderProps) {
   const [requestHistory, setRequestHistory] = useState<RequestDetails[]>([])
   const [selectedProvider, setSelectedProvider] = useState<string>('openai')
   const [lastTransferredRequest, setLastTransferredRequest] = useState<string | null>(null)
+  const undoStack = useRef<RequestDetails[]>([])
 
   // Load last transferred request on mount
   useEffect(() => {
@@ -40,15 +41,15 @@ export function AIProvider({ children }: AIProviderProps) {
       setRequestDetails({
         method: result.method,
         endpoint: result.endpoint,
-        parameters: result.parameters,
+        parameters: {
+          headers: result.parameters?.headers,
+          body: result.parameters?.body
+        },
         context: result.context
       })
 
       setRequestHistory(prev => [...prev, requestDetails])
-
-      // Clear last transferred request when generating new one
       setLastTransferredRequest(null)
-
       toast.success('Successfully processed query')
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Unknown error occurred'
@@ -89,6 +90,14 @@ export function AIProvider({ children }: AIProviderProps) {
     toast.success('Request cleared')
   }
 
+  const undoLastAction = () => {
+    const lastState = undoStack.current.pop()
+    if (lastState) {
+      setRequestDetails(lastState)
+      toast.success('Action undone')
+    }
+  }
+
   return (
     <AIContext.Provider 
       value={{
@@ -107,6 +116,7 @@ export function AIProvider({ children }: AIProviderProps) {
         transferToClassic,
         lastTransferredRequest,
         clearRequest,
+        undoLastAction,
       }}
     >
       {children}

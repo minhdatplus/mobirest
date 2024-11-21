@@ -4,7 +4,7 @@ import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
-import { Settings, Home, Sun, Moon, Laptop } from "lucide-react"
+import { Settings, Home, Sun, Moon, Laptop, History, Star } from "lucide-react"
 import { useTheme } from "next-themes"
 import {
   DropdownMenu,
@@ -12,6 +12,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
+import { QuickActionButton } from "@/components/ui/quick-action-button"
 
 const routes = [
   {
@@ -30,6 +31,16 @@ export function Navigation() {
   const pathname = usePathname()
   const { theme, setTheme } = useTheme()
   
+  const showRecentRequests = () => {
+    // Implement show recent requests logic
+    console.log("Show recent requests")
+  }
+
+  const showFavorites = () => {
+    // Implement show favorites logic
+    console.log("Show favorites")
+  }
+
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div className="container flex h-14 items-center justify-between">
@@ -54,6 +65,16 @@ export function Navigation() {
               </Link>
             ))}
           </nav>
+          <div className="flex gap-2">
+            <QuickActionButton
+              icon={<History className="h-4 w-4" />}
+              onClick={showRecentRequests}
+            />
+            <QuickActionButton
+              icon={<Star className="h-4 w-4" />}
+              onClick={showFavorites}
+            />
+          </div>
         </div>
         <DropdownMenu>
           <DropdownMenuTrigger asChild>

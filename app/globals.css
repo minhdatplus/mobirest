@@ -109,11 +109,11 @@
 
   .dark {
     /* Base dark theme */
-    --background: 240 10% 3.9%;
-    --foreground: 0 0% 98%;
-    --card: 240 10% 3.9%;
+    --background: 222.2 84% 3%;
+    --foreground: 210 40% 98%;
+    --card: 222.2 84% 4.5%;
     --card-foreground: 0 0% 98%;
-    --popover: 240 10% 3.9%;
+    --popover: 222.2 84% 4.5%;
     --popover-foreground: 0 0% 98%;
     
     /* Keep theme colors in dark mode */
@@ -125,8 +125,8 @@
     --accent-foreground: 0 0% 100%;
     
     /* Adjusted dark mode specific colors */
-    --muted: 240 3.7% 15.9%;
-    --muted-foreground: 240 5% 84.9%;
+    --muted: 217.2 32.6% 17%;
+    --muted-foreground: 215 20.2% 85%;
     --destructive: 0 62.8% 30.6%;
     --destructive-foreground: 0 0% 98%;
     --border: var(--primary);
@@ -169,16 +169,62 @@
     --accent: 213 52% 55%;
     --border: 213 62% 45%;
   }
+
+  /* Improved focus visibility */
+  :focus-visible {
+    @apply outline-none ring-2 ring-primary/50 ring-offset-2;
+  }
+
+  /* Better text readability */
+  .dark {
+    --foreground: 0 0% 98%; /* Increased contrast */
+    --muted-foreground: 215 20.2% 85%; /* More visible muted text */
+    
+    /* Improved link visibility */
+    a {
+      @apply text-primary/90 hover:text-primary 
+             underline-offset-4 hover:underline;
+    }
+  }
+
+  /* Theme transition improvements */
+  * {
+    @apply transition-colors duration-200;
+  }
+
+  /* Enhanced mobile touch targets */
+  .mobile-touch-target {
+    @apply min-h-[48px] min-w-[48px];
+  }
+
+  /* Better loading states */
+  .skeleton {
+    @apply animate-pulse bg-muted/50 rounded;
+  }
+
+  /* Improved feedback animations */
+  .success-animation {
+    @apply animate-in fade-in-50 duration-300;
+  }
+
+  /* Touch feedback */
+  .touch-feedback {
+    @apply active:scale-95 transition-transform duration-150;
+  }
 }
 
 @layer components {
   /* Enhanced component styles */
   .btn-primary {
-    @apply bg-primary text-primary-foreground shadow-sm hover:bg-primary/90 active:bg-primary/95 transition-colors;
+    @apply bg-primary/90 text-primary-foreground 
+           shadow-[0_2px_10px] shadow-primary/20
+           hover:bg-primary hover:shadow-[0_4px_20px] hover:shadow-primary/30
+           active:shadow-[0_2px_8px] active:translate-y-[0.5px];
   }
   
   .btn-secondary {
-    @apply bg-secondary text-secondary-foreground shadow-sm hover:bg-secondary/80 active:bg-secondary/85 transition-colors;
+    @apply bg-secondary/80 text-secondary-foreground
+           hover:bg-secondary/90 active:bg-secondary/85;
   }
   
   .btn-outline {
@@ -189,45 +235,402 @@
     @apply text-foreground/60 hover:text-foreground hover:bg-accent/10 active:bg-accent/15 transition-colors;
   }
 
-  /* Refined tabs styles */
+  /* Enhanced badge styles */
+  .badge-primary {
+    @apply bg-primary/15 text-primary border border-primary/30 
+           shadow-sm font-medium;
+  }
+
+  .badge-secondary {
+    @apply bg-secondary/15 text-secondary-foreground border 
+           border-secondary/30 shadow-sm font-medium;
+  }
+
+  .badge-outline {
+    @apply border-2 border-primary/50 text-primary bg-transparent
+           hover:bg-primary/5 transition-colors duration-200;
+  }
+
+  /* Improved tabs styles */
   .tabs-list {
-    @apply inline-flex h-11 items-center justify-center rounded-lg bg-muted p-1 text-muted-foreground shadow-sm;
+    @apply inline-flex h-12 items-center justify-center 
+           rounded-xl bg-muted/50 p-1.5 
+           border border-border/50
+           shadow-sm backdrop-blur-sm;
   }
 
   .tabs-trigger {
-    @apply inline-flex items-center justify-center whitespace-nowrap rounded-md px-3 py-1.5 text-sm font-medium ring-offset-background transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-sm hover:bg-muted-foreground/10;
+    @apply inline-flex items-center justify-center 
+           whitespace-nowrap rounded-lg px-4 py-2
+           text-sm font-medium ring-offset-background 
+           transition-all duration-200
+           focus-visible:outline-none focus-visible:ring-2 
+           focus-visible:ring-ring focus-visible:ring-offset-2 
+           disabled:pointer-events-none disabled:opacity-50 
+           relative
+           data-[state=active]:bg-primary/15
+           data-[state=active]:text-primary
+           data-[state=active]:shadow-[inset_0_0_0_1.5px] data-[state=active]:shadow-primary/50
+           hover:bg-muted-foreground/10;
+  }
+
+  /* Add active indicator for tabs */
+  .tabs-trigger[data-state=active]::after {
+    @apply content-[''] absolute -bottom-[2px] left-1/2 
+           transform -translate-x-1/2 w-1 h-1 
+           bg-primary rounded-full opacity-80;
   }
 
   /* Enhanced card styles */
   .card-primary {
-    @apply bg-card text-card-foreground shadow-sm border border-border/50 hover:border-border transition-colors;
+    @apply bg-card/95 border-border/30 
+           shadow-[0_4px_20px_-8px] shadow-black/20
+           backdrop-blur-sm transition-all duration-200
+           hover:shadow-[0_6px_24px_-8px] hover:shadow-black/30;
   }
 
-  /* Refined input styles */
+  /* Improved input styles */
   .input-primary {
-    @apply h-11 border-input bg-background text-foreground shadow-sm focus-visible:ring-1 focus-visible:ring-ring hover:border-border transition-colors;
+    @apply h-11 bg-card/75 border-border/30
+           focus:border-primary/60 focus:ring-primary/25
+           hover:border-border/60 transition-all duration-200
+           placeholder:text-muted-foreground/60;
   }
 
   /* Enhanced select styles */
   .select-trigger {
-    @apply h-11 border-input bg-background text-foreground shadow-sm focus:ring-1 focus:ring-ring hover:border-border transition-colors;
+    @apply h-11 bg-card/75 border-border/30
+           focus:border-primary/60 focus:ring-primary/25
+           hover:border-border/60 transition-all duration-200;
   }
 
-  /* Refined badge styles */
-  .badge-primary {
-    @apply bg-primary/10 text-primary-foreground border border-primary/20 shadow-sm;
+  /* Improved button styles */
+  .btn-primary {
+    @apply bg-primary/90 text-primary-foreground font-medium
+           shadow-[0_2px_10px] shadow-primary/20
+           hover:bg-primary hover:shadow-[0_4px_20px] hover:shadow-primary/30
+           active:shadow-[0_2px_8px] active:translate-y-[0.5px]
+           disabled:opacity-50 disabled:pointer-events-none
+           transition-all duration-200;
   }
 
-  .badge-secondary {
-    @apply bg-secondary/10 text-secondary-foreground border border-secondary/20 shadow-sm;
+  .btn-secondary {
+    @apply bg-secondary/80 text-secondary-foreground
+           hover:bg-secondary/90 active:bg-secondary/85
+           shadow-sm hover:shadow transition-all duration-200;
   }
 
-  /* Enhanced dropdown styles */
-  .dropdown-content {
-    @apply z-50 min-w-[8rem] overflow-hidden rounded-md border bg-popover p-1 text-popover-foreground shadow-md;
+  /* Dark mode specific enhancements */
+  .dark {
+    .card-primary {
+      @apply bg-card/90 border-border/20 
+             shadow-[0_4px_20px_-8px] shadow-black/40;
+    }
+
+    .input-primary, .select-trigger {
+      @apply bg-card/50 border-border/30
+             focus:border-primary/50 focus:ring-primary/20;
+    }
+
+    .tabs-trigger[data-state=active] {
+      @apply bg-primary/20 text-primary-foreground
+             shadow-[inset_0_0_0_1.5px] shadow-primary/60;
+    }
+
+    .badge-primary {
+      @apply bg-primary/20 text-primary-foreground;
+    }
+
+    .btn-primary {
+      @apply shadow-[0_4px_20px_-8px] shadow-primary/40
+             hover:shadow-[0_6px_24px_-8px] hover:shadow-primary/50;
+    }
   }
 
-  .dropdown-item {
-    @apply relative flex cursor-default select-none items-center rounded-sm px-2 py-1.5 text-sm outline-none transition-colors focus:bg-accent focus:text-accent-foreground hover:bg-accent/50;
+  /* Loading states */
+  .skeleton {
+    @apply animate-pulse bg-muted/50 rounded;
   }
+
+  /* Success animations */
+  .success-animation {
+    @apply animate-in fade-in-50 duration-300;
+  }
+
+  /* Mobile optimizations */
+  @media (max-width: 640px) {
+    .mobile-touch-target {
+      @apply min-h-[44px] min-w-[44px];
+    }
+
+    .btn-primary, .btn-secondary {
+      @apply py-2.5 px-4 text-sm;
+    }
+
+    .input-primary, .select-trigger {
+      @apply h-10 text-sm;
+    }
+  }
+
+  /* Accessibility improvements */
+  .focus-ring {
+    @apply focus-visible:outline-none focus-visible:ring-2
+           focus-visible:ring-primary/50 focus-visible:ring-offset-2
+           focus-visible:ring-offset-background;
+  }
+
+  /* Enhanced mobile interactions */
+  .mobile-interactive {
+    @apply touch-action-manipulation
+           active:scale-[0.98]
+           transition-transform duration-150;
+  }
+
+  /* Improved focus states */
+  .focus-visible {
+    @apply outline-none ring-2 ring-primary/50
+           ring-offset-2 ring-offset-background
+           transition-shadow duration-200;
+  }
+
+  /* Better loading states */
+  .loading-state {
+    @apply animate-pulse bg-muted/50
+           relative overflow-hidden
+           after:absolute after:inset-0
+           after:bg-gradient-to-r
+           after:from-transparent
+           after:via-white/10
+           after:to-transparent
+           after:animate-shimmer;
+  }
+
+  /* Enhanced card interactions */
+  .card-hover {
+    @apply hover:translate-y-[-2px]
+           hover:shadow-lg
+           active:translate-y-0
+           transition-all duration-200;
+  }
+}
+
+@layer utilities {
+  /* Define ripple animation keyframes */
+  @keyframes ripple {
+    from {
+      transform: scale(0);
+      opacity: 1;
+    }
+    to {
+      transform: scale(4);
+      opacity: 0;
+    }
+  }
+
+  .animate-ripple {
+    animation: ripple 0.6s linear;
+  }
+
+  .animate-smooth {
+    @apply transition-all duration-200 ease-in-out;
+  }
+
+  .hover-lift {
+    @apply hover:translate-y-[-2px] hover:shadow-lg
+           active:translate-y-0 active:shadow-md
+           transition-all duration-200;
+  }
+
+  /* Define shimmer animation keyframes */
+  @keyframes shimmer {
+    from {
+      transform: translateX(-100%);
+    }
+    to {
+      transform: translateX(100%);
+    }
+  }
+
+  .animate-shimmer {
+    animation: shimmer 2s linear infinite;
+  }
+
+  /* Enhanced loading states */
+  .loading-skeleton {
+    @apply animate-pulse bg-muted/50
+           relative overflow-hidden;
+  }
+
+  .loading-skeleton::after {
+    @apply absolute inset-0
+           bg-gradient-to-r from-transparent via-white/10 to-transparent;
+    content: '';
+    animation: shimmer 2s linear infinite;
+  }
+
+  /* Improved animations */
+  .animate-fade {
+    @apply opacity-0 animate-in fade-in
+           duration-300 ease-out;
+  }
+
+  .animate-slide {
+    @apply translate-y-4 animate-in
+           slide-in-from-bottom-4
+           duration-300 ease-out;
+  }
+
+  /* Mobile optimizations */
+  .mobile-optimized {
+    @apply touch-action-pan-y
+           active:scale-[0.98]
+           transition-transform
+           min-h-[44px];
+  }
+
+  /* Thêm utility class cho touch-action nếu cần */
+  .touch-action-none {
+    touch-action: none;
+  }
+  
+  .touch-action-pan-x {
+    touch-action: pan-x;
+  }
+  
+  .touch-action-pan-y {
+    touch-action: pan-y;
+  }
+  
+  .touch-action-pan-left {
+    touch-action: pan-left;
+  }
+  
+  .touch-action-pan-right {
+    touch-action: pan-right;
+  }
+  
+  .touch-action-pan-up {
+    touch-action: pan-up;
+  }
+  
+  .touch-action-pan-down {
+    touch-action: pan-down;
+  }
+  
+  .touch-action-pinch-zoom {
+    touch-action: pinch-zoom;
+  }
+  
+  .touch-action-manipulation {
+    touch-action: manipulation;
+  }
+}
+
+/* Breadcrumb styles */
+.breadcrumb-container {
+  @apply flex items-center gap-2 text-sm text-muted-foreground mb-4;
+}
+
+/* Improved mobile navigation */
+.mobile-nav {
+  @apply fixed bottom-0 left-0 right-0 
+         bg-background/95 backdrop-blur-lg
+         border-t border-border/50
+         py-2 px-4;
+}
+
+/* Enhanced hover states */
+.interactive-element {
+  @apply transition-all duration-200
+         hover:scale-[1.02] active:scale-[0.98]
+         focus-visible:ring-2 focus-visible:ring-primary/50;
+}
+
+/* Touch feedback with simpler implementation */
+.touch-target {
+  @apply relative overflow-hidden
+         hover:bg-primary/5
+         active:bg-primary/10
+         transition-colors duration-200;
+}
+
+/* Inline validation */
+.input-wrapper {
+  @apply relative;
+}
+
+.input-hint {
+  @apply text-xs text-muted-foreground mt-1;
+}
+
+.input-error {
+  @apply text-xs text-destructive mt-1;
+}
+
+/* Field status indicators */
+.input-status {
+  @apply absolute right-2 top-1/2 -translate-y-1/2
+         text-muted-foreground;
+}
+
+/* Content placeholders */
+.placeholder-content {
+  @apply opacity-40 pointer-events-none
+         select-none transition-opacity;
+}
+
+/* Tablet-specific layouts */
+@media (min-width: 768px) and (max-width: 1024px) {
+  .tablet-layout {
+    @apply grid grid-cols-2 gap-4;
+  }
+  
+  .tablet-sidebar {
+    @apply sticky top-4 self-start;
+  }
+
+  .suggestion-grid {
+    @apply grid-cols-2 gap-6;
+  }
+  
+  .input-group {
+    @apply flex-row items-center gap-4;
+  }
+}
+
+.mobile-optimized {
+  @apply touch-action-pan-y
+         active:scale-[0.98]
+         transition-transform
+         min-h-[44px];
+}
+
+.pull-to-refresh {
+  @apply -mt-16 pt-16 transition-all duration-200;
+}
+
+.bottom-sheet {
+  @apply fixed bottom-0 left-0 right-0
+         bg-background/95 backdrop-blur-lg
+         rounded-t-2xl shadow-lg
+         transform transition-transform;
+}
+
+.bottom-sheet-handle {
+  @apply w-12 h-1 bg-muted mx-auto mt-2 rounded-full;
+}
+
+.focus-ring-enhanced {
+  @apply outline-none
+         ring-2 ring-primary/50
+         ring-offset-2 ring-offset-background
+         transition-shadow duration-200
+         focus-visible:ring-primary/70
+         focus-visible:ring-offset-4;
+}
+
+.interactive-focus {
+  @apply focus-visible:scale-[1.02]
+         focus-visible:translate-y-[-2px]
+         transition-transform duration-200;
 }

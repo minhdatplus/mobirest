@@ -13,6 +13,14 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
+import {
+  Command,
+  CommandInput,
+  CommandList,
+  CommandEmpty,
+  CommandGroup,
+  CommandItem,
+} from "@/components/ui/command"
 
 export function NaturalLanguageInput() {
   const [query, setQuery] = useState('')
@@ -23,6 +31,13 @@ export function NaturalLanguageInput() {
     if (!query.trim()) return
     await processNaturalLanguage(query)
   }
+
+  const suggestions = [
+    "Get all users",
+    "Create new user",
+    "Update user profile",
+    "Delete user"
+  ]
 
   return (
     <Card className="p-4">
@@ -46,12 +61,26 @@ export function NaturalLanguageInput() {
         </div>
         
         <div className="flex gap-2">
-          <Input
-            placeholder="e.g. Get all users from api.example.com"
-            value={query}
-            onChange={(e) => setQuery(e.target.value)}
-            className="flex-1"
-          />
+          <Command className="rounded-lg border shadow-md">
+            <CommandInput
+              placeholder="e.g. Get all users"
+              value={query}
+              onValueChange={setQuery}
+            />
+            <CommandList>
+              <CommandEmpty>No suggestions found.</CommandEmpty>
+              <CommandGroup heading="Suggestions">
+                {suggestions.map(suggestion => (
+                  <CommandItem
+                    key={suggestion}
+                    onSelect={(value) => setQuery(value)}
+                  >
+                    {suggestion}
+                  </CommandItem>
+                ))}
+              </CommandGroup>
+            </CommandList>
+          </Command>
           <Button type="submit" disabled={isProcessing}>
             {isProcessing ? (
               <>

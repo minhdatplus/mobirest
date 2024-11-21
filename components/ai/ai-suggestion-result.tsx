@@ -4,13 +4,14 @@ import { useAI } from '@/lib/ai-context'
 import { Card } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Check, Copy, ExternalLink, Code, RotateCcw } from 'lucide-react'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Badge } from '@/components/ui/badge'
 import { Separator } from '@/components/ui/separator'
 
 export function AISuggestionResult() {
   const { suggestions, requestDetails, isProcessing, transferToClassic, clearRequest } = useAI()
   const [copied, setCopied] = useState(false)
+  const [touchStart, setTouchStart] = useState(0)
 
   if (!suggestions.length || isProcessing) return null
 
@@ -22,6 +23,32 @@ export function AISuggestionResult() {
 
   const handleTransfer = () => {
     transferToClassic(requestDetails)
+  }
+
+  const handleSwipe = (event: TouchEvent) => {
+    if (Math.abs(event.changedTouches[0].clientX - touchStart) > 100) {
+      clearRequest()
+    }
+  }
+
+  const ProgressiveResponse = ({ data }) => {
+    const [visibleParts, setVisibleParts] = useState(1)
+    
+    useEffect(() => {
+      const timer = setInterval(() => {
+        setVisibleParts(prev => Math.min(prev + 1, 4))
+      }, 200)
+      return () => clearInterval(timer)
+    }, [])
+
+    return (
+      <div className="space-y-2 animate-in fade-in-50">
+        {visibleParts >= 1 && <Method data={data.method} />}
+        {visibleParts >= 2 && <URL data={data.url} />}
+        {visibleParts >= 3 && <Headers data={data.headers} />}
+        {visibleParts >= 4 && <Body data={data.body} />}
+      </div>
+    )
   }
 
   return (

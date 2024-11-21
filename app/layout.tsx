@@ -31,6 +31,9 @@ export default function RootLayout({
             <div className="flex min-h-screen flex-col">
               <Navigation />
               <main className="flex-1 container py-6">
+                <a href="#main-content" className="sr-only focus:not-sr-only">
+                  Skip to main content
+                </a>
                 {children}
               </main>
             </div>
