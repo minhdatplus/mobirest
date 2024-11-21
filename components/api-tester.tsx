@@ -22,6 +22,12 @@ import { DocumentationViewer } from './ai/documentation-viewer'
 import { DocumentationGenerator } from '@/lib/services/documentation-generator'
 import { GeneratedDocumentation } from '@/lib/types/ai-documentation'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip"
 
 interface ApiTesterProps {
   className?: string
@@ -458,9 +464,32 @@ export function ApiTester({ className }: ApiTesterProps) {
             <Tabs defaultValue="response" className="w-full">
               <TabsList className="px-4">
                 <TabsTrigger value="response">Response</TabsTrigger>
-                <TabsTrigger value="documentation" disabled={!documentation}>
-                  Documentation
-                </TabsTrigger>
+                <TooltipProvider delayDuration={200} skipDelayDuration={0}>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <div>
+                        <TabsTrigger 
+                          value="documentation" 
+                          disabled={!documentation}
+                          className="cursor-help"
+                        >
+                          Documentation
+                        </TabsTrigger>
+                      </div>
+                    </TooltipTrigger>
+                    <TooltipContent 
+                      side="top" 
+                      className="max-w-[200px]"
+                      sideOffset={5}
+                      align="center"
+                    >
+                      {documentation 
+                        ? "View API documentation" 
+                        : "Click 'Generate Docs' button to create documentation for this endpoint"
+                      }
+                    </TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
               </TabsList>
 
               <TabsContent value="response" className="m-0">
