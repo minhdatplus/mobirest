@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef } from 'react'
 import { AIContext } from '@/lib/ai-context'
 import { processQuery } from '@/lib/ai-service'
-import { toast } from 'sonner'
+import { showToast } from '@/lib/utils/toast-manager'
 import type { RequestDetails } from '@/lib/ai-context'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { useAIProviderStore } from '@/lib/stores/ai-provider-store'
@@ -28,7 +28,7 @@ export function AIProvider({ children }: AIProviderProps) {
 
   const transferToClassic = (details: RequestDetails) => {
     if (!details.method || !details.endpoint) {
-      toast.error('Invalid request details')
+      showToast.error('Invalid request details')
       return
     }
 
@@ -51,7 +51,7 @@ export function AIProvider({ children }: AIProviderProps) {
     // Switch to classic tab and trigger storage event
     router.push(`/?${params.toString()}`)
     window.dispatchEvent(new Event('storage'))
-    toast.success('Request transferred to Classic mode')
+    showToast.success('Request transferred to Classic mode')
   }
 
   const clearRequest = () => {
@@ -61,7 +61,7 @@ export function AIProvider({ children }: AIProviderProps) {
     setError(null)
     setLastTransferredRequest(null)
     localStorage.removeItem('transferredRequest')
-    toast.success('Request cleared')
+    showToast.success('Request cleared')
   }
 
   return (
@@ -81,7 +81,15 @@ export function AIProvider({ children }: AIProviderProps) {
           try {
             setIsProcessing(true)
             setLastQuery(query)
-            const result = await processQuery(query, selectedProvider)
+            
+            await showToast.promise(
+              processQuery(query, selectedProvider),
+              {
+                loading: 'Processing your request...',
+                success: 'Successfully processed query',
+                error: 'Failed to process query'
+              }
+            )
             
             setSuggestions(result.suggestions)
             setRequestDetails({
@@ -96,11 +104,11 @@ export function AIProvider({ children }: AIProviderProps) {
 
             setRequestHistory(prev => [...prev, requestDetails])
             setLastTransferredRequest(null)
-            toast.success('Successfully processed query')
+            showToast.success('Successfully processed query')
           } catch (err) {
             const errorMessage = err instanceof Error ? err.message : 'Unknown error occurred'
             setError(errorMessage)
-            toast.error(errorMessage)
+            showToast.error(errorMessage)
           } finally {
             setIsProcessing(false)
           }

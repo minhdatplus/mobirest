@@ -9,7 +9,7 @@ import { CollectionDialog } from "./collections/collection-dialog"
 import { HistoryDialog } from "./history/history-dialog"
 import { SettingsDialog } from "./settings/settings-dialog"
 import { HistoryItem, Collection } from "@/types"
-import { toast } from "sonner"
+import { showToast } from '@/lib/utils/toast-manager'
 import { Card } from "@/components/ui/card"
 import { Separator } from "@/components/ui/separator"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
@@ -81,10 +81,10 @@ export function ApiTester({ className }: ApiTesterProps) {
             
             // Clear transferred request after loading
             localStorage.removeItem('transferredRequest')
-            toast.success('Request loaded from AI Assistant')
+            showToast.success('Request loaded from AI Assistant')
           } catch (error) {
             console.error('Error loading transferred request:', error)
-            toast.error('Failed to load transferred request')
+            showToast.error('Failed to load transferred request')
           }
         }
       }
@@ -95,11 +95,9 @@ export function ApiTester({ className }: ApiTesterProps) {
 
   const handleSend = async () => {
     if (!url) {
-      toast.error("Please enter a URL")
+      showToast.error("Please enter a URL")
       return
     }
-
-    localStorage.removeItem('transferredRequest')
 
     setIsLoading(true)
     try {
@@ -112,20 +110,26 @@ export function ApiTester({ className }: ApiTesterProps) {
         return acc
       }, {})
 
-      const proxyResponse = await fetch('/api/proxy', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          url,
-          method,
-          headers: headerObj,
-          data: method !== 'GET' && body ? JSON.parse(body) : undefined
-        })
-      })
+      await showToast.promise(
+        fetch('/api/proxy', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            url,
+            method,
+            headers: headerObj,
+            data: method !== 'GET' && body ? JSON.parse(body) : undefined
+          })
+        }),
+        {
+          loading: 'Sending request...',
+          success: 'Request completed successfully',
+          error: 'Failed to send request'
+        }
+      )
 
-      const responseData = await proxyResponse.json()
       const endTime = performance.now()
       
       setResponseTime(Math.round(endTime - startTime))
@@ -147,9 +151,9 @@ export function ApiTester({ className }: ApiTesterProps) {
         setHistory(prev => [historyItem, ...prev].slice(0, settings.maxHistoryItems))
       }
 
-      toast.success("Request completed successfully")
+      showToast.success("Request completed successfully")
     } catch (error: any) {
-      toast.error(error.message || "An error occurred")
+      showToast.error(error.message || "An error occurred")
       setResponse({
         error: error.message,
         status: 0,
@@ -182,7 +186,7 @@ export function ApiTester({ className }: ApiTesterProps) {
     resetForm()
     setResponse(null)
     setResponseTime(null)
-    toast.success("Request form cleared")
+    showToast.success("Request form cleared")
   }
 
   return (
@@ -282,7 +286,7 @@ export function ApiTester({ className }: ApiTesterProps) {
                       const formatted = JSON.stringify(JSON.parse(body), null, 2)
                       setBody(formatted)
                     } catch (e) {
-                      toast.error("Invalid JSON format")
+                      showToast.error("Invalid JSON format")
                     }
                   }}
                   className="h-8"
@@ -323,7 +327,7 @@ export function ApiTester({ className }: ApiTesterProps) {
                 onClick={() => {
                   setMethod(item.method as Method)
                   setUrl(item.url)
-                  toast.success("Request loaded from history")
+                  showToast.success("Request loaded from history")
                 }}
                 className={cn(
                   "group flex items-center w-full p-2 rounded-md",
@@ -426,7 +430,7 @@ export function ApiTester({ className }: ApiTesterProps) {
         <div className="flex items-center gap-2 justify-end">
           <CollectionDialog
             onSave={(collection: CollectionSaveProps) => {
-              toast.success("Saved to collection")
+              showToast.success("Saved to collection")
             }}
             method={method}
             url={url}
@@ -438,14 +442,14 @@ export function ApiTester({ className }: ApiTesterProps) {
             onSelect={(item: HistoryItem) => {
               setMethod(item.method as Method)
               setUrl(item.url)
-              toast.success("Request loaded from history")
+              showToast.success("Request loaded from history")
             }}
           />
           <SettingsDialog
             settings={settings}
             onSettingsChange={(newSettings: typeof settings) => {
               setSettings(newSettings)
-              toast.success("Settings updated")
+              showToast.success("Settings updated")
             }}
           />
         </div>
