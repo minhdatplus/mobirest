@@ -31,6 +31,9 @@ import {
 import { ClientErrorAnalyzer } from '@/lib/services/client-error-analyzer'
 import { ErrorAnalysis } from '@/lib/types/error-detection'
 import { ErrorDialog } from './error-dialog'
+import { PerformanceAnalyzer } from '@/lib/services/performance-analyzer'
+import { PerformanceAnalysis } from '@/lib/types/performance'
+import { PerformanceAnalysis as PerformanceAnalysisComponent } from '@/components/performance-analysis'
 
 interface ApiTesterProps {
   className?: string
@@ -69,6 +72,8 @@ export function ApiTester({ className }: ApiTesterProps) {
   const [errorAnalysis, setErrorAnalysis] = React.useState<ErrorAnalysis | null>(null)
   const errorAnalyzer = new ClientErrorAnalyzer()
   const [showErrorDialog, setShowErrorDialog] = React.useState(false)
+  const [performanceData, setPerformanceData] = React.useState<PerformanceAnalysis | null>(null)
+  const performanceAnalyzer = new PerformanceAnalyzer()
 
   const methods: Method[] = ["GET", "POST", "PUT", "DELETE", "PATCH"]
   const methodsWithBody = ["POST", "PUT", "PATCH"]
@@ -118,11 +123,9 @@ export function ApiTester({ className }: ApiTesterProps) {
     }
 
     setIsLoading(true)
+    const startTime = performance.now()
+    
     try {
-      const startTime = performance.now()
-      setResponse(null)
-      setResponseTime(null)
-
       const headerObj = headers.reduce((acc: Record<string, string>, h: Header) => {
         if (h.key && h.value) acc[h.key] = h.value
         return acc
@@ -144,7 +147,7 @@ export function ApiTester({ className }: ApiTesterProps) {
 
       // Hiển thị toast trong khi đợi fetch
       showToast.promise(fetchPromise, {
-        loading: 'Sending request...',
+        title: 'Sending request...',
         success: 'Request completed successfully',
         error: 'Failed to send request'
       })
@@ -154,13 +157,23 @@ export function ApiTester({ className }: ApiTesterProps) {
       const responseData = await response.json()
       
       const endTime = performance.now()
-      setResponseTime(Math.round(endTime - startTime))
-      
+      const responseTime = Math.round(endTime - startTime)
+
+      // Analyze performance
+      const analysis = performanceAnalyzer.analyze(
+        responseTime,
+        responseData.data,
+        responseData.headers,
+        performance.getEntriesByType('resource').pop() as PerformanceResourceTiming
+      )
+      setPerformanceData(analysis)
+
       if (responseData.error) {
         throw new Error(responseData.error)
       }
 
       setResponse(responseData)
+      setResponseTime(responseTime)
 
       if (settings.saveHistory) {
         const historyItem: HistoryItem = {
@@ -179,7 +192,8 @@ export function ApiTester({ className }: ApiTesterProps) {
       
       // Show error UI with solutions
       if (analysis.solutions.length > 0) {
-        showToast.error(analysis.error.message, {
+        showToast.error({
+          title: analysis.error.message,
           action: {
             label: 'View Solutions',
             onClick: () => setShowErrorDialog(true)
@@ -476,32 +490,8 @@ export function ApiTester({ className }: ApiTesterProps) {
             <Tabs defaultValue="response" className="w-full">
               <TabsList className="px-4">
                 <TabsTrigger value="response">Response</TabsTrigger>
-                <TooltipProvider delayDuration={200} skipDelayDuration={0}>
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <div>
-                        <TabsTrigger 
-                          value="documentation" 
-                          disabled={!documentation}
-                          className="cursor-help"
-                        >
-                          Documentation
-                        </TabsTrigger>
-                      </div>
-                    </TooltipTrigger>
-                    <TooltipContent 
-                      side="top" 
-                      className="max-w-[200px]"
-                      sideOffset={5}
-                      align="center"
-                    >
-                      {documentation 
-                        ? "View API documentation" 
-                        : "Click 'Generate Docs' button to create documentation for this endpoint"
-                      }
-                    </TooltipContent>
-                  </Tooltip>
-                </TooltipProvider>
+                <TabsTrigger value="performance">Performance</TabsTrigger>
+                <TabsTrigger value="documentation">Documentation</TabsTrigger>
               </TabsList>
 
               <TabsContent value="response" className="m-0">
@@ -518,6 +508,15 @@ export function ApiTester({ className }: ApiTesterProps) {
                     </pre>
                   </div>
                 </div>
+              </TabsContent>
+
+              <TabsContent value="performance" className="m-0">
+                {performanceData && (
+                  <PerformanceAnalysisComponent 
+                    analysis={performanceData}
+                    className="border-0 rounded-none"
+                  />
+                )}
               </TabsContent>
 
               <TabsContent value="documentation" className="m-0">
