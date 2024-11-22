@@ -1,30 +1,24 @@
 export interface Prompt {
   id: string;
   name: string;
-  description?: string;
-  content: PromptBlock[];
-  groupId: string;
-  variables?: PromptVariable[];
+  content: string;
+  groupId?: string;
+  variables: Variable[];
   createdAt: Date;
   updatedAt: Date;
 }
 
-export interface PromptBlock {
+export interface Group {
   id: string;
-  content: string;
-  order: number;
-  isVisible: boolean;
+  name: string;
+  description?: string;
+  parentId?: string;
+  createdAt: Date;
+  updatedAt: Date;
 }
 
-export interface PromptVariable {
+export interface Variable {
   name: string;
   value: string;
   description?: string;
-}
-
-export interface PromptGroup {
-  id: string;
-  name: string;
-  parentId?: string;
-  children?: PromptGroup[];
 } 
