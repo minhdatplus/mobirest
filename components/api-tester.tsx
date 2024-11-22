@@ -34,6 +34,7 @@ import { ErrorDialog } from './error-dialog'
 import { PerformanceAnalyzer } from '@/lib/services/performance-analyzer'
 import { PerformanceAnalysis } from '@/lib/types/performance'
 import { PerformanceAnalysis as PerformanceAnalysisComponent } from '@/components/performance-analysis'
+import { RequestValidator } from '@/lib/services/request-validator'
 
 interface ApiTesterProps {
   className?: string
@@ -74,6 +75,7 @@ export function ApiTester({ className }: ApiTesterProps) {
   const [showErrorDialog, setShowErrorDialog] = React.useState(false)
   const [performanceData, setPerformanceData] = React.useState<PerformanceAnalysis | null>(null)
   const performanceAnalyzer = new PerformanceAnalyzer()
+  const validator = new RequestValidator()
 
   const methods: Method[] = ["GET", "POST", "PUT", "DELETE", "PATCH"]
   const methodsWithBody = ["POST", "PUT", "PATCH"]
@@ -116,11 +118,27 @@ export function ApiTester({ className }: ApiTesterProps) {
     }
   }, [currentTab, setMethod, setUrl, setHeaders, setBody])
 
-  const handleSend = async () => {
-    if (!url) {
-      showToast.error("Please enter a URL")
-      return
+  // Thêm function validation
+  const validateRequest = () => {
+    const validation = validator.validateRequest({
+      url,
+      method,
+      headers,
+      body
+    })
+
+    if (!validation.isValid) {
+      validation.errors.forEach(error => {
+        showToast.error(error)
+      })
     }
+
+    return validation.isValid
+  }
+
+  // Sử dụng trong handleSend
+  const handleSend = async () => {
+    if (!validateRequest()) return
 
     setIsLoading(true)
     const startTime = performance.now()
@@ -190,16 +208,12 @@ export function ApiTester({ className }: ApiTesterProps) {
       const analysis = errorAnalyzer.analyzeError(error)
       setErrorAnalysis(analysis)
       
-      // Show error UI with solutions
+      // Thay đổi logic hiển thị lỗi
       if (analysis.solutions.length > 0) {
-        showToast.error({
-          title: analysis.error.message,
-          action: {
-            label: 'View Solutions',
-            onClick: () => setShowErrorDialog(true)
-          }
-        })
+        // Nếu có solutions thì chỉ show dialog, không show toast
+        setShowErrorDialog(true)
       } else {
+        // Nếu không có solutions thì chỉ show toast
         showToast.error(analysis.error.message)
       }
     } finally {
@@ -574,7 +588,7 @@ export function ApiTester({ className }: ApiTesterProps) {
         </div>
       </div>
 
-      {errorAnalysis && (
+      {errorAnalysis && showErrorDialog && (
         <ErrorDialog
           analysis={errorAnalysis}
           onApplyFix={(fix: () => void) => {
@@ -582,7 +596,11 @@ export function ApiTester({ className }: ApiTesterProps) {
             setErrorAnalysis(null)
             setShowErrorDialog(false)
           }}
-          onClose={() => setShowErrorDialog(false)}
+          onClose={() => {
+            setShowErrorDialog(false)
+            // Đợi animation dialog đóng xong mới clear analysis
+            setTimeout(() => setErrorAnalysis(null), 300)
+          }}
         />
       )}
     </div>

@@ -20,17 +20,16 @@ export interface PerformanceIssue {
 }
 
 export interface PerformanceAnalysis {
-  metrics: PerformanceMetrics
-  issues: PerformanceIssue[]
-  score: number // 0-100
-  benchmark: {
-    industry: number
-    percentile: number
-    rating: 'excellent' | 'good' | 'needs-improvement' | 'poor'
-  }
-  trends?: {
-    responseTime: number[]
-    payloadSize: number[]
-    timestamp: number[]
+  responseTime: number
+  size: number
+  cacheStatus: 'hit' | 'miss' | 'none'
+  compressionUsed: boolean
+  suggestions: string[]
+  score: number
+  metrics: {
+    ttfb: number
+    downloadTime: number
+    headerSize: number
+    bodySize: number
   }
 } 

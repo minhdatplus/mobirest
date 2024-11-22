@@ -6,6 +6,7 @@ import { Navigation } from '@/components/layout/navigation'
 import { Toaster } from 'sonner'
 import { AIProvider } from '@/components/providers/ai-provider'
 import { StoreProvider } from '@/components/providers/store-provider'
+import { ErrorBoundary } from "@/components/error-boundary"
 
 const inter = Inter({ subsets: ['latin'] })
 
@@ -30,15 +31,17 @@ export default function RootLayout({
         >
           <StoreProvider>
             <AIProvider>
-              <div className="flex min-h-screen flex-col">
-                <Navigation />
-                <main className="flex-1 container py-6">
-                  <a href="#main-content" className="sr-only focus:not-sr-only">
-                    Skip to main content
-                  </a>
-                  {children}
-                </main>
-              </div>
+              <ErrorBoundary>
+                <div className="flex min-h-screen flex-col">
+                  <Navigation />
+                  <main className="flex-1 container py-6">
+                    <a href="#main-content" className="sr-only focus:not-sr-only">
+                      Skip to main content
+                    </a>
+                    {children}
+                  </main>
+                </div>
+              </ErrorBoundary>
             </AIProvider>
           </StoreProvider>
           <Toaster position="top-right" />
