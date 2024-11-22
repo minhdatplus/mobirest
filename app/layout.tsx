@@ -10,6 +10,7 @@ import { ErrorBoundary } from "@/components/error-boundary"
 import { SidebarNav } from "@/components/layout/sidebar-nav"
 import { DatabaseProvider } from "@/components/providers/database-provider"
 import { SettingsMenu } from "@/components/layout/settings-menu"
+import { ThemeSwitcher } from "@/components/layout/theme-switcher"
 
 const inter = Inter({ subsets: ['latin'] })
 
@@ -45,7 +46,10 @@ export default function RootLayout({
                           </div>
                           <SidebarNav />
                         </div>
-                        <SettingsMenu />
+                        <div className="flex items-center gap-2">
+                          {/* <ThemeSwitcher /> */}
+                          <SettingsMenu />
+                        </div>
                       </div>
                     </header>
                     <main className="flex-1">
